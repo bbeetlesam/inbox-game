@@ -1,12 +1,14 @@
+-- Configuration code for the game, runs before the game loaded
+
 function love.conf(t)
     t.window.title = "Inbox"
     t.window.icon = nil
-    t.window.width = 1600
-    t.window.height = 1000
+    t.window.width = 1440/1.2
+    t.window.height = 1080/1.2
     t.window.resizable = true
     t.window.fullscreen = true
-    t.window.minwidth = 960
-    t.window.minheight = 600
+    t.window.minwidth = 640
+    t.window.minheight = 480
 
     -- for debugging
     t.version = "11.5"
