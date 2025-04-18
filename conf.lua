@@ -1,7 +1,8 @@
 -- Configuration code for the game, runs before the game loaded
+local const = require("src/const")
 
 function love.conf(t)
-    t.window.title = "Inbox"
+    t.window.title = const.game.TITLE
     t.window.icon = nil
     t.window.width = 1440/1.2
     t.window.height = 1080/1.2
