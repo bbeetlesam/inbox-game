@@ -6,7 +6,6 @@ vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
     uv += offset;
     uv = (uv + 1.0) / 2.0;
 
-    // kalo di luar layar, bikin transparan
     if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0)
         return vec4(0.0);
 
