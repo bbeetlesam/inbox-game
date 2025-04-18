@@ -3,11 +3,11 @@ local const = require("src/const")
 
 function love.conf(t)
     t.window.title = const.game.TITLE
-    t.window.icon = nil
+    t.window.icon = "assets/img/icon.png"
     t.window.width = 1440/1.2
     t.window.height = 1080/1.2
     t.window.resizable = true
-    t.window.fullscreen = true
+    t.window.fullscreen = false
     t.window.minwidth = 640
     t.window.minheight = 480
 
