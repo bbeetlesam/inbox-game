@@ -1,21 +1,17 @@
 -- Main entry of the game (LÖVE default)
-
 local utils = require("src/utils")
 
--- Load the game
--- This function is called once at the beginning of the game
+-- Load the game. Called once at the beginning of the game
 function love.load()
     
 end
 
--- Update the game
--- This function is called every frame
+-- Update the game. Called every frame
 function love.update(dt)
     Game = {utils.setGameScreen(1440, 1080)}
 end
 
--- Draw the game
--- This function is called every frame
+-- Draw the game. Called every frame
 function love.draw()
     love.graphics.push()
     love.graphics.translate(Game[1], Game[2])
@@ -30,5 +26,7 @@ end
 function love.keypressed(key, scancode, isrepeat)
     if key == "escape" then
         love.event.quit()
+    elseif key == "f11" then
+        utils.toggleFullscreen()
     end
 end

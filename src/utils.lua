@@ -29,6 +29,11 @@ local utils = {
         love.graphics.rectangle("fill", 0, 0, 1440, 1080)
         love.graphics.setColor(1, 1, 1, 1)
     end,
+
+    toggleFullscreen = function()
+        local isFullscreen = love.window.getFullscreen()
+        love.window.setFullscreen(not isFullscreen)
+    end,
 }
 
 return utils
