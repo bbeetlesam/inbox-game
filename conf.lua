@@ -1,4 +1,3 @@
--- Configuration code for the game, runs before the game loaded
 local const = require("src/const")
 
 function love.conf(t)
@@ -10,6 +9,7 @@ function love.conf(t)
     t.window.fullscreen = false
     t.window.minwidth = 640
     t.window.minheight = 480
+    t.window.vsync = 0
 
     -- for debugging
     t.version = "11.5"
