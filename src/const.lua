@@ -8,6 +8,7 @@ local const = {
             WIDTH = 1440,
             HEIGHT = 1080,
         },
+        TASKBAR_HEIGHT = 45,
     },
 
     color = {
