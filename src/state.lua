@@ -8,7 +8,7 @@ local state = {
     }
 }
 
-state.updateState = function()
+state.update = function()
     local _, _, _, _, x, y = utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)
     state.mouse.x = x
     state.mouse.y = y
