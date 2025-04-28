@@ -2,7 +2,7 @@
 local state = require("src/state")
 
 local cursor = {
-    cursorImage = love.graphics.newImage("assets/img/win98-cursor.png"),
+    cursorImage = love.graphics.newImage("assets/img/cursor.png"),
     size = 5,
     x = state.mouse.x - 5 / 2,
     y = state.mouse.y - 5 / 2,
