@@ -45,6 +45,27 @@ local utils = {
         local r, g, b, a = args[1], args[2], args[3], args[4]
         return {r/255, g/255, b/255, a or 1}
     end,
+
+    printCenterText = function(text, centerX, centerY, useBorder, borderColor, borderOffset)
+        local font = love.graphics.getFont()
+        local textWidth = font:getWidth(text)
+        local textHeight = font:getHeight()
+
+        if useBorder then
+            love.graphics.setColor(borderColor or {1, 1, 1})
+            love.graphics.rectangle("fill", centerX - textWidth / 2 - (borderOffset[1] or 1), centerY - textHeight / 2 - (borderOffset[2] or 1),
+            textWidth + (borderOffset[1] or 1) * 2, textHeight + (borderOffset[2] or 1) * 2)
+
+            love.graphics.setColor(1, 1, 1)
+        end
+
+        love.graphics.print(text, centerX - textWidth / 2, centerY - textHeight / 2)
+    end,
+
+    drawImage = function(image, x, y, size)
+        local width, height = image:getDimensions()
+        love.graphics.draw(image, x, y, 0, size / width, size / height)
+    end,
 }
 
 return utils
