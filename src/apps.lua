@@ -36,11 +36,7 @@ apps.draw = function()
         love.graphics.setColor(1, 1, 1)
         utils.drawImage(icon, x + diff, y + 5, apps.iconSize)
 
-        if app.isSelect then
-            utils.printCenterText(app.label, x + apps.rectSize / 2, y + apps.rectSize - 15, true, const.color.NAVY_BLUE, {1, 2})
-        else
-            utils.printCenterText(app.label, x + apps.rectSize / 2, y + apps.rectSize - 15)
-        end
+        utils.printCenterText(app.label, x + apps.rectSize / 2, y + apps.rectSize - 15, app.isSelect, const.color.NAVY_BLUE, {1, 2})
     end
     love.graphics.setColor(1, 1, 1) -- reset color
 end
