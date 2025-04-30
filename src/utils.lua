@@ -40,7 +40,7 @@ local utils = {
     setRGB = function(...)
         local args = {...}
         if type(...) == "table" then
-            args = {unpack(...)}
+            args = {table.unpack(...)}
         end
         local r, g, b, a = args[1], args[2], args[3], args[4]
         return {r/255, g/255, b/255, a or 1}
