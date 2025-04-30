@@ -14,7 +14,12 @@ local const = {
     color = {
         DEEP_TEAL = utils.setRGB(0, 128, 128),
         SILVER_TASKBAR = utils.setRGB(192, 192, 192),
+        NAVY_BLUE = utils.setRGB(0, 0, 128),
     },
+
+    font = {
+        WIN95 = "assets/fonts/W95FA.otf",
+    }
 }
 
 return const
