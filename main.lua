@@ -60,18 +60,10 @@ function love.draw()
 
     love.graphics.draw(mainCanvas2)
 
-    -- shaders.applyShader(function()
-    --     utils.core.setBaseBgColor(const.color.DEEP_TEAL)
-    --     taskbar.drawTaskbar()
-    --     apps.draw()
-    --     cursor.draw()
-    -- end,
-    -- {shaders.grainyNoise, shaders.barrelDistortion})
-
     love.graphics.pop()
 end
 
-function love.keyreleased(key, scancode, isrepeat)
+function love.keyreleased(key, _, _)
     if key == "escape" then
         love.event.quit()
     elseif key == "f11" then
@@ -79,10 +71,10 @@ function love.keyreleased(key, scancode, isrepeat)
     end
 end
 
-function love.mousepressed(x, y, button, istouch, presses)
+function love.mousepressed(_, _, button, _, presses)
     if button == 1 then
         apps.mousepressed(cursor)
-        windows.clickCheck(cursor)
+        windows.cursorClickCheck(cursor)
 
         if presses == 2 and apps.selectedApp.id ~= nil then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
