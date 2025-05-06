@@ -66,6 +66,10 @@ local utils = {
         local width, height = image:getDimensions()
         love.graphics.draw(image, x, y, 0, size / width, size / height)
     end,
+
+    rectButton = function(cursor, x, y, w, h)
+        return (cursor.x >= x and cursor.x <= x + w and cursor.y >= y and cursor.y <= y + h)
+    end,
 }
 
 return utils
