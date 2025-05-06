@@ -5,6 +5,8 @@ local shaders = {
     grainyNoise = love.graphics.newShader("src/shaders/grainy.glsl")
 }
 
+shaders.CanvasPool = CanvasPool
+
 shaders.init = function(barrelStrength, grainyStrength)
     shaders.barrelDistortion:send("strength", barrelStrength or 0.06)
     shaders.grainyNoise:send("strength", grainyStrength or 0.5)
@@ -14,8 +16,10 @@ shaders.update = function()
     shaders.grainyNoise:send("time", love.timer.getTime())
 end
 
-shaders.applyShader = function(baseDrawFunc, shaderList)
-    local w, h = love.graphics.getDimensions()
+shaders.drawAppliedShader = function(baseDrawFunc, shaderList, table)
+    if table == nil then table = {love.graphics.getWidth(), love.graphics.getHeight()} end
+    local w, h = table[1], table[2]
+
     CanvasPool.reset()
 
     local currentCanvas = CanvasPool.get(w, h)
