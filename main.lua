@@ -45,7 +45,7 @@ function love.draw()
 
         love.graphics.pop()
     end,
-    {shaders.grainyNoise, shaders.barrelDistortion}, {const.game.screen.WIDTH, const.game.screen.HEIGHT})
+    {shaders.grainyNoise, shaders.barrelDistortion}, {love.graphics.getWidth(), love.graphics.getHeight()})
 end
 
 function love.keyreleased(key, _, _)
