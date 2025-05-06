@@ -8,9 +8,6 @@ local taskbar = require("src/taskbar")
 local apps = require("src/apps")
 local windows = require("src/windows")
 
-local mainCanvas = love.graphics.newCanvas(const.game.screen.WIDTH, const.game.screen.HEIGHT)
-local mainCanvas2 = love.graphics.newCanvas(const.game.screen.WIDTH, const.game.screen.HEIGHT)
-
 -- Load the game. Called once at the beginning of the game
 function love.load()
     love.window.setFullscreen(true)
@@ -31,38 +28,24 @@ end
 
 -- Draw the game. Called every frame
 function love.draw()
-    love.graphics.setCanvas(mainCanvas)
-        love.graphics.clear()
-        love.graphics.setShader(shaders.grainyNoise)
+    shaders.drawAppliedShader(function()
+        love.graphics.push()
+        love.graphics.translate(Game[1], Game[2])
+        love.graphics.scale(Game[3], Game[4])
+
+        love.graphics.setScissor(Game[1], Game[2], const.game.screen.WIDTH * Game[3], const.game.screen.HEIGHT * Game[4])
 
         utils.core.setBaseBgColor(const.color.DEEP_TEAL)
-
         apps.draw()
         windows.draw()
         taskbar.drawTaskbar()
         cursor.draw()
 
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.setShader()
-    love.graphics.setCanvas()
+        love.graphics.setScissor()
 
-    love.graphics.setCanvas(mainCanvas2)
-        love.graphics.clear()
-        love.graphics.setShader(shaders.barrelDistortion)
-
-        love.graphics.draw(mainCanvas)
-
-        love.graphics.setShader()
-    love.graphics.setCanvas()
-
-    love.graphics.push()
-    love.graphics.translate(Game[1], Game[2])
-    love.graphics.scale(Game[3], Game[4])
-
-    love.graphics.clear(0, 0, 0)
-    love.graphics.draw(mainCanvas2)
-
-    love.graphics.pop()
+        love.graphics.pop()
+    end,
+    {shaders.grainyNoise, shaders.barrelDistortion}, {const.game.screen.WIDTH, const.game.screen.HEIGHT})
 end
 
 function love.keyreleased(key, _, _)
@@ -93,9 +76,11 @@ function love.mousepressed(_, _, button, _, presses)
 end
 
 function love.resize()
+    shaders.CanvasPool.clear()
     Game = {utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)}
 end
 
 function love.quit()
+    shaders.CanvasPool.clear()
     return false
 end
