@@ -26,6 +26,7 @@ function love.update(dt)
     shaders.update()
     cursor.update()
     apps.update(cursor)
+    windows.update(cursor)
 end
 
 -- Draw the game. Called every frame
@@ -36,9 +37,9 @@ function love.draw()
 
         utils.core.setBaseBgColor(const.color.DEEP_TEAL)
 
-        taskbar.drawTaskbar()
         apps.draw()
         windows.draw()
+        taskbar.drawTaskbar()
         cursor.draw()
 
         love.graphics.setColor(1, 1, 1)
@@ -58,6 +59,7 @@ function love.draw()
     love.graphics.translate(Game[1], Game[2])
     love.graphics.scale(Game[3], Game[4])
 
+    love.graphics.clear(0, 0, 0)
     love.graphics.draw(mainCanvas2)
 
     love.graphics.pop()
@@ -75,6 +77,13 @@ function love.mousepressed(_, _, button, _, presses)
     if button == 1 then
         apps.mousepressed(cursor)
         windows.cursorClickCheck(cursor)
+
+        for _, item in ipairs(windows.items) do
+            if item.hover.closeButton then
+                windows.closeWindow(item.id)
+                break
+            end
+        end
 
         if presses == 2 and apps.selectedApp.id ~= nil then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
