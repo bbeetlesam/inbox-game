@@ -2,7 +2,8 @@ local CanvasPool = require("src/canvasPool")
 
 local shaders = {
     barrelDistortion = love.graphics.newShader("src/shaders/barrel_distortion.glsl"),
-    grainyNoise = love.graphics.newShader("src/shaders/grainy.glsl")
+    grainyNoise = love.graphics.newShader("src/shaders/grainy.glsl"),
+    crtScanline = love.graphics.newShader("src/shaders/crt_scanline.glsl"),
 }
 
 shaders.CanvasPool = CanvasPool
@@ -14,6 +15,7 @@ end
 
 shaders.update = function()
     shaders.grainyNoise:send("time", love.timer.getTime())
+    shaders.crtScanline:send("scanlineIntensity", 0.92)
 end
 
 shaders.drawAppliedShader = function(baseDrawFunc, shaderList, table)
