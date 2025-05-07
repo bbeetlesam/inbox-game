@@ -150,6 +150,10 @@ function window.update(mouseCursor)
     else
         window.drag.target = nil
     end
+
+    if #window.items == 0 then
+        window.clicked = false
+    end
 end
 
 return window
