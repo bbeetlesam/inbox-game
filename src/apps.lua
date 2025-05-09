@@ -1,5 +1,6 @@
 local utils = require "src/utils"
 local const = require "src/const"
+local windows = require "src/windows"
 
 local apps = {
     labelFont = love.graphics.newFont(const.font.WIN95, 16),
@@ -57,7 +58,7 @@ apps.mousepressed = function(cursor)
         local h = apps.rectSize
 
         if cursor.x >= x and cursor.x <= x + w and
-           cursor.y >= y and cursor.y <= y + h then
+           cursor.y >= y and cursor.y <= y + h and windows.clicked == false then
             apps.selectedApp.id = app.id
             apps.selectedApp.icon = app.icon
 

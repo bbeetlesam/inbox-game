@@ -21,8 +21,9 @@ local window = {
         offset = {x = 0, y = 0},
         target = nil ---@type WindowItem|nil
     },
+    clicked = false,
 
-    size = {x = 800, y = 700, outline = 1}, -- for debugging reason
+    size = {x = 800, y = 700, outline = 2}, -- for debugging reason
 }
 
 function window.addItem(insertedItem)
@@ -39,8 +40,8 @@ function window.addItem(insertedItem)
         id = insertedItem[1],
         icon = insertedItem[2],
 
-        x = love.math.random(200, 800),
-        y = love.math.random(200, 800),
+        x = love.math.random(const.game.screen.WIDTH / 2 - window.size.x / 2 - 100, const.game.screen.WIDTH / 2 - window.size.x / 2 + 100),
+        y = love.math.random(const.game.screen.HEIGHT / 2 - window.size.y / 2 - 100, const.game.screen.HEIGHT / 2 - window.size.y / 2 + 100),
 
         hover = {
             closeButton = false,
@@ -100,7 +101,10 @@ function window.cursorClickCheck(mousecCursor)
             -- Reorder window to last (top-most)
             table.remove(window.items, i)
             table.insert(window.items, item)
+            window.clicked = true
             return
+        else
+            window.clicked = false
         end
     end
 end
@@ -145,6 +149,10 @@ function window.update(mouseCursor)
         item.y = mouseCursor.y - window.drag.offset.y
     else
         window.drag.target = nil
+    end
+
+    if #window.items == 0 then
+        window.clicked = false
     end
 end
 
