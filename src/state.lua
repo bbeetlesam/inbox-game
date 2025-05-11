@@ -5,6 +5,13 @@ local state = {
     mouse = {
         x = 0,
         y = 0
+    },
+    time = {
+        frame = 1,
+        game = {
+            hour = 22,
+            minute = 0,
+        }
     }
 }
 

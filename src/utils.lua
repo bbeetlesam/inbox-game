@@ -70,6 +70,23 @@ local utils = {
     rectButton = function(cursor, x, y, w, h)
         return (cursor.x >= x and cursor.x <= x + w and cursor.y >= y and cursor.y <= y + h)
     end,
+
+    formatTime = function(hour, minute, format)
+        local period = "AM"
+        if hour >= 12 then
+            period = "PM"
+        end
+
+        local hour12 = hour % 12
+        if hour12 == 0 then
+            hour12 = 12
+        end
+
+        if format == "24" then
+            return string.format("%02d:%02d", hour, minute)
+        end
+        return string.format("%02d:%02d %s", hour12, minute, period)
+    end
 }
 
 return utils
