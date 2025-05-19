@@ -23,6 +23,7 @@ function love.update(dt)
     shaders.update()
     cursor.update()
     apps.update(cursor)
+    taskbar.update(cursor)
     windows.update(cursor)
 end
 
@@ -38,7 +39,7 @@ function love.draw()
         utils.core.setBaseBgColor(const.color.DEEP_TEAL)
         apps.draw()
         windows.draw()
-        taskbar.drawTaskbar()
+        taskbar.draw()
         cursor.draw()
 
         love.graphics.setScissor()
@@ -60,6 +61,7 @@ function love.mousepressed(_, _, button, _, presses)
     if button == 1 then
         apps.mousepressed(cursor)
         windows.cursorClickCheck(cursor)
+        taskbar.iconClicked()
 
         for _, item in ipairs(windows.items) do
             if item.hover.closeButton then
