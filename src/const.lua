@@ -16,6 +16,8 @@ local const = {
         SILVER_TASKBAR = utils.setRGB(192, 192, 192),
         NAVY_BLUE = utils.setRGB(0, 0, 128),
         BLACK = utils.setRGB(0, 0, 0),
+        SILVER_BEVEL = utils.setRGB(80, 80, 80),
+        WHITE = {1, 1, 1},
     },
 
     font = {

@@ -64,6 +64,7 @@ local utils = {
 
     drawImage = function(image, x, y, size)
         local width, height = image:getDimensions()
+        love.graphics.setColor(1, 1, 1)
         love.graphics.draw(image, x, y, 0, size / width, size / height)
     end,
 
@@ -86,6 +87,29 @@ local utils = {
             return string.format("%02d:%02d", hour, minute)
         end
         return string.format("%02d:%02d %s", hour12, minute, period)
+    end,
+
+    bevelRect = function(x, y, w, h, shaderWidth, baseColor, upperColor, lowerColor)
+        local lowercolor = upperColor or {0.3, 0.3, 0.3}
+        local uppercolor = lowerColor or {1, 1, 1}
+
+        love.graphics.setColor(baseColor)
+        love.graphics.rectangle("fill", x, y, w, h)
+        love.graphics.setColor(uppercolor)
+        love.graphics.rectangle("fill", x, y, w, shaderWidth)
+        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth)
+        love.graphics.setColor(lowercolor)
+        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth)
+        love.graphics.rectangle("fill", x + w - shaderWidth, y + shaderWidth*0, shaderWidth, h - shaderWidth*0)
+    end,
+
+    setLimiterString = function(str, limit, limiterString)
+        local limiterstr = limiterString or "..."
+        if #str <= limit then
+            return str
+        elseif #str > limit then
+            return str:sub(1, limit - #limiterstr) .. limiterstr
+        end
     end
 }
 
