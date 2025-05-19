@@ -96,9 +96,17 @@ taskbar.iconClicked = function()
     end
 
     -- If an app icon is clicked
+    local window = require("src/windows")
     for _, item in ipairs(taskbar.items) do
         if item.hoverRect then
             item.isClicked = true
+            -- Find the window item by id and move it to the top
+            for j, win in ipairs(window.items) do
+                if win.id == item.id then
+                    local winItem = table.remove(window.items, j)
+                    table.insert(window.items, winItem)
+                end
+            end
         else
             item.isClicked = false
         end
