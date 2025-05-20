@@ -1,7 +1,6 @@
 local utils = require ("src/utils")
 local const = require ("src/const")
 local cursor = require ("src/cursor")
-local taskbar = require ("src/taskbar")
 
 -- need this bcs there'd be a warning bout the type of the table in window.update()
 ---@class WindowItem
@@ -66,6 +65,8 @@ function window.checkItemId(itemId)
 end
 
 function window.closeWindow(itemId)
+    local taskbar = require ("src/taskbar")
+
     for i, item in ipairs(window.items) do
         if item.id == itemId then
             table.remove(window.items, i)
