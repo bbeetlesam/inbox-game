@@ -4,11 +4,14 @@ local utils = require("src/utils")
 local state = require("src/state")
 
 local taskbar = {
+    apps = require("src/apps"),
     start = {
         icon = love.graphics.newImage("/assets/img/windows-0.png"),
         usernameFont = love.graphics.newFont(const.font.BRITTANY, 30),
         hoverRect = false,
         isClicked = false,
+        panelFont = love.graphics.newFont(const.font.WIN95, 18),
+        panelHoverRect = false,
     },
     font = love.graphics.newFont(const.font.WIN95, 18),
     height = const.game.TASKBAR_HEIGHT,
@@ -35,6 +38,7 @@ taskbar.draw = function()
     love.graphics.print("Start", x + 5 + 40, y + taskbar.height/2 - 10 + 5/2)
     utils.drawImage(taskbar.start.icon, x + 10, y + 15/2, 30)
 
+    -- Taskbar line separator
     love.graphics.setColor(const.color.SILVER_BEVEL)
     love.graphics.rectangle("fill", x + 85 + 3, y + 5, 3, taskbar.height - 10, 2, 2)
 
@@ -55,9 +59,11 @@ taskbar.draw = function()
         love.graphics.print(utils.setLimiterString(item.appName, 10, "..."), posX + 30, posY + 5)
     end
 
-    -- Start button rectangle
+    -- Start panel
     local startW, startH = 250, 400
     local startX, startY = x + 5, y - startH + 4
+    local bluePanelWidth = 40
+    local appPanelHeight = 55
 
     if taskbar.start.isClicked then
         love.graphics.setColor(const.color.BLACK)
@@ -66,10 +72,20 @@ taskbar.draw = function()
         love.graphics.setColor(const.color.SILVER_BEVEL)
         utils.bevelRect(startX, startY, startW, startH, 3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
         love.graphics.setColor(const.color.NAVY_BLUE)
-        love.graphics.rectangle("fill", startX + 3, startY + 3, 40, startH - 3 - 3)
+        love.graphics.rectangle("fill", startX + 3, startY + 3, bluePanelWidth, startH - 3 - 3)
         love.graphics.setColor(const.color.WHITE)
         love.graphics.setFont(taskbar.start.usernameFont)
         love.graphics.print(const.game.USERNAME, startX + 8, startY + 390, math.rad(-90))
+
+        for i, app in ipairs(taskbar.apps.app) do
+            love.graphics.setColor(app.hoverRect and const.color.NAVY_BLUE or const.color.SILVER_TASKBAR)
+            love.graphics.rectangle("fill", startX + bluePanelWidth + 3, startY + 3 + (i-1)*appPanelHeight, startW - bluePanelWidth - 3 - 5, appPanelHeight)
+            love.graphics.setColor(const.color.WHITE)
+            utils.drawImage(app.icon, startX + 50, startY + 5 + 2 + (i - 1)*(appPanelHeight), 46)
+            love.graphics.setColor(app.hoverRect and const.color.WHITE or const.color.BLACK)
+            love.graphics.setFont(taskbar.start.panelFont)
+            love.graphics.print(app.label, startX + bluePanelWidth + 3 + 50 + 5 + 9, startY + 5 + (i - 1)*(appPanelHeight) + 5 + 12)
+        end
     end
 
     -- Right-side taskbar
@@ -79,10 +95,27 @@ taskbar.draw = function()
 end
 
 taskbar.update = function(cursor)
-    taskbar.start.hoverRect =  utils.rectButton(cursor, 0 + 5, const.game.screen.HEIGHT - taskbar.height + 10/2, 35 + 45, 35)
+    taskbar.start.hoverRect =  utils.rectButton(cursor, 0 + 5, (const.game.screen.HEIGHT - taskbar.height) + 10/2, 35 + 45, 35)
+    if taskbar.start.isClicked then
+        taskbar.start.panelHoverRect = utils.rectButton(cursor, 0 + 5, (const.game.screen.HEIGHT - taskbar.height) - 400 + 4, 250, 400)
+    end
+
     for i, item in ipairs(taskbar.items) do
         local textWidth = taskbar.font:getWidth("1234567890")
-        item.hoverRect = utils.rectButton(cursor, 0 + 10 + (i - 1) * (35 + textWidth + 5 + 5) + 60 + 30 - 10/2, const.game.screen.HEIGHT - taskbar.height + 20/2 - 10/2, 35 + textWidth + 5, 35)
+        item.hoverRect = utils.rectButton(cursor,
+            0 + 10 + (i - 1) * (35 + textWidth + 5 + 5) + 60 + 30 - 10/2,
+            const.game.screen.HEIGHT - taskbar.height + 20/2 - 10/2,
+            35 + textWidth + 5, 35
+        )
+    end
+
+    for i, app in ipairs(taskbar.apps.app) do
+        app.hoverRect = utils.rectButton(cursor,
+            0 + 5 + 40 + 3, -- startX + bluePanelWidth + 3
+            const.game.screen.HEIGHT - taskbar.height - 400 + 4 + 3 + (i-1)*55, -- startY + 3 + (i-1)*a
+            250 - 40 - 3 - 5, -- startW - bluePanelWidth - 3 - 5
+            55 -- a
+        )
     end
 end
 
@@ -110,7 +143,9 @@ taskbar.iconClicked = function()
     if taskbar.start.hoverRect then
         taskbar.start.isClicked = not taskbar.start.isClicked
     else
-        taskbar.start.isClicked = false
+        if taskbar.start.panelHoverRect ~= true then
+            taskbar.start.isClicked = false
+        end
     end
 
     -- If an app icon is clicked
