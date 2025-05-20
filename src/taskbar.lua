@@ -6,9 +6,9 @@ local state = require("src/state")
 local taskbar = {
     start = {
         icon = love.graphics.newImage("/assets/img/windows-0.png"),
+        usernameFont = love.graphics.newFont(const.font.BRITTANY, 30),
         hoverRect = false,
         isClicked = false,
-        username = string.upper(os.getenv("USERNAME") or os.getenv("USER") or "USER"),
     },
     font = love.graphics.newFont(const.font.WIN95, 18),
     height = const.game.TASKBAR_HEIGHT,
@@ -55,6 +55,24 @@ taskbar.draw = function()
         love.graphics.print(utils.setLimiterString(item.appName, 10, "..."), posX + 30, posY + 5)
     end
 
+    -- Start button rectangle
+    local startW, startH = 250, 400
+    local startX, startY = x + 5, y - startH + 4
+
+    if taskbar.start.isClicked then
+        love.graphics.setColor(const.color.BLACK)
+        love.graphics.print("Start", x + 5 + 40, y + taskbar.height/2 - 10 + 5/2)
+
+        love.graphics.setColor(const.color.SILVER_BEVEL)
+        utils.bevelRect(startX, startY, startW, startH, 3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
+        love.graphics.setColor(const.color.NAVY_BLUE)
+        love.graphics.rectangle("fill", startX + 3, startY + 3, 40, startH - 3 - 3)
+        love.graphics.setColor(const.color.WHITE)
+        love.graphics.setFont(taskbar.start.usernameFont)
+        love.graphics.print(const.game.USERNAME, startX + 8, startY + 390, math.rad(-90))
+    end
+
+    -- Right-side taskbar
     love.graphics.setFont(taskbar.font)
     love.graphics.setColor(const.color.BLACK)
     utils.printCenterText(ingameTime, const.game.screen.WIDTH - 50, y + taskbar.height/2)
