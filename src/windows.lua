@@ -9,6 +9,7 @@ local cursor = require ("src/cursor")
 
 local window = {
     items = {},
+    minimized = {},
     header = {
         height = 40,
         font = love.graphics.newFont(const.font.WIN95, 20),
@@ -28,6 +29,14 @@ local window = {
 }
 
 function window.addItem(insertedItem)
+    -- If window is minimized, restore it
+    local minimized = window.minimized[insertedItem[1]]
+    if minimized then
+        table.insert(window.items, minimized)
+        window.minimized[insertedItem[1]] = nil
+        return
+    end
+
     for i, item in ipairs(window.items) do
         if item.id == insertedItem[1] then
             local currentItem = window.items[i]
@@ -68,6 +77,17 @@ function window.checkItemId(itemId)
         return "File"
     elseif itemId == "settings" then
         return "Settings"
+    end
+end
+
+function window.minimizeWindow(itemId)
+    for i, item in ipairs(window.items) do
+        if item.id == itemId then
+            -- Save the window state to minimized
+            window.minimized[itemId] = item
+            table.remove(window.items, i)
+            break
+        end
     end
 end
 

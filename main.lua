@@ -84,6 +84,7 @@ end
 
 function love.mousereleased(_, _, button, _, _)
     if button == 1 then
+        -- Windows stufs
         for _, item in ipairs(windows.items) do
             item.isClicked.closeButton = false
             item.isClicked.minimButton = false
@@ -91,6 +92,12 @@ function love.mousereleased(_, _, button, _, _)
             -- If close button is clicked
             if item.hover.closeButton then
                 windows.closeWindow(item.id)
+                break
+            end
+
+            -- If minimize button is clicked
+            if item.hover.minimButton then
+                windows.minimizeWindow(item.id)
                 break
             end
         end

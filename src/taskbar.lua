@@ -154,15 +154,23 @@ taskbar.iconClicked = function()
         end
     end
 
-    -- If an app icon in taskbar is clicked
+    -- If an app icon in taskbar (opened app list) is clicked
     for _, item in ipairs(taskbar.items) do
         if item.hoverRect then
             item.isClicked = true
-            -- Find the window item by id and move it to the top
+
+            -- Restore window if it's minimized
+            if window.minimized[item.id] then
+                table.insert(window.items, window.minimized[item.id])
+                window.minimized[item.id] = nil
+            end
+
+            -- Bring the window to the top if it's already open
             for j, win in ipairs(window.items) do
                 if win.id == item.id then
                     local winItem = table.remove(window.items, j)
                     table.insert(window.items, winItem)
+                    break
                 end
             end
         else
