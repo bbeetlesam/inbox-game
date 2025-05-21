@@ -154,21 +154,6 @@ taskbar.iconClicked = function()
         end
     end
 
-    -- If an app in Start panel is clicked
-    for _, app in ipairs(taskbar.start.panel.apps.app) do
-        if app.hoverRect then
-            taskbar.addItem({app.id, app.icon})
-            window.addItem({app.id, app.icon})
-            for _, item in ipairs(taskbar.items) do
-                if item.id == app.id then
-                    item.isClicked = true
-                end
-            end
-
-            taskbar.start.isClicked = false
-        end
-    end
-
     -- If an app icon in taskbar is clicked
     for _, item in ipairs(taskbar.items) do
         if item.hoverRect then
@@ -182,6 +167,21 @@ taskbar.iconClicked = function()
             end
         else
             item.isClicked = false
+        end
+    end
+
+    -- If an app in Start panel is clicked
+    for _, app in ipairs(taskbar.start.panel.apps.app) do
+        if app.hoverRect then
+            taskbar.addItem({app.id, app.icon})
+            window.addItem({app.id, app.icon})
+            for _, item in ipairs(taskbar.items) do
+                if item.id == app.id then
+                    item.isClicked = true
+                end
+            end
+
+            taskbar.start.isClicked = false
         end
     end
 end
