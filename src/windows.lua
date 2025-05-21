@@ -14,6 +14,7 @@ local window = {
         font = love.graphics.newFont(const.font.WIN95, 20),
         button = {
             size = 25,
+            font = love.graphics.newFont(const.font.WIN95, 14),
         }
     },
     drag = {
@@ -22,7 +23,7 @@ local window = {
     },
     clicked = false,
 
-    size = {x = 800, y = 700, outline = 2}, -- for debugging reason
+    size = {x = 803, y = 703, outline = 3}, -- for debugging reason
 }
 
 function window.addItem(insertedItem)
@@ -113,41 +114,48 @@ end
 function window.draw()
     for _, item in ipairs(window.items) do
         local windowLabel = window.checkItemId(item.id)
+        local headerColor = (item.id == window.items[#window.items].id and const.color.NAVY_BLUE or utils.setRGB(130, 130, 130))
 
-        -- base taskbar
-        love.graphics.setColor(const.color.SILVER_TASKBAR)
-        love.graphics.rectangle("fill", item.x, item.y, window.size.x, window.size.y)
+        -- window's base
+        utils.bevelRect(item.x, item.y, window.size.x, window.size.y, window.size.outline, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
         -- window's header
         item.hover.header = utils.rectButton(cursor, item.x + 3, item.y + 3, window.size.x - 3*2, window.header.height - 3*2)
-        love.graphics.setColor(item.id == window.items[#window.items].id and const.color.NAVY_BLUE or utils.setRGB(130, 130, 130))
-        love.graphics.rectangle("fill", item.x + 3, item.y + 3, window.size.x - 3*2, window.header.height - 3*2)
-        -- window's white outline
-        love.graphics.setColor(1, 1, 1)
-        love.graphics.rectangle("fill", item.x, item.y, window.size.x, window.size.outline)
-        love.graphics.rectangle("fill", item.x, item.y, window.size.outline, window.size.y)
-        -- window's black outline
-        love.graphics.setColor(0, 0, 0)
-        love.graphics.rectangle("fill", item.x + window.size.x - window.size.outline, item.y, window.size.outline, window.size.y)
-        love.graphics.rectangle("fill", item.x, item.y + window.size.y - window.size.outline, window.size.x, window.size.outline)
+        love.graphics.setColor(headerColor)
+        love.graphics.rectangle("fill", item.x + 3, item.y + 3, window.size.x - 3*2 - 2, window.header.height - 3*2)
         -- window's header text
         love.graphics.setColor(1, 1, 1)
         love.graphics.setFont(window.header.font)
         love.graphics.print(windowLabel, item.x + 10, item.y + 10)
-        -- header buttons (close and minimize)
-        item.hover.closeButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
-        item.hover.minimButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2 - 32.5, item.y + 15/2, window.header.button.size, window.header.button.size)
-        love.graphics.setColor(const.color.SILVER_TASKBAR)
-        love.graphics.rectangle("fill", item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
-        love.graphics.rectangle("fill", item.x + window.size.x - window.header.button.size - 15/2 - 32.5, item.y + 15/2, window.header.button.size, window.header.button.size)
+        -- window's header buttons (close and minimize)
+        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
+        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
+        love.graphics.setFont(window.header.button.font)
+        love.graphics.setColor(const.color.BLACK)
+        love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1) -- double draw to get bolder looks
+        love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
+        love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
+        love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
     end
     love.graphics.setColor(1, 1, 1) -- reset color
 end
 
 function window.update(mouseCursor)
+    -- Update hover states for close and minimize buttons
+    for _, item in ipairs(window.items) do
+        item.hover.minimButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size)
+        item.hover.closeButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
+    end
+
+    -- Dragging the window
     if love.mouse.isDown(1) and window.drag.target then
         local item = window.drag.target
-        item.x = mouseCursor.x - window.drag.offset.x
-        item.y = mouseCursor.y - window.drag.offset.y
+        if item then
+            item.x = mouseCursor.x - window.drag.offset.x
+            item.y = mouseCursor.y - window.drag.offset.y
+
+            item.x = math.max(0, math.min(item.x, const.game.screen.WIDTH - window.size.x))
+            item.y = math.max(0, math.min(item.y, const.game.screen.HEIGHT - window.size.y))
+        end
     else
         window.drag.target = nil
     end

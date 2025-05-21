@@ -101,6 +101,7 @@ local utils = {
         love.graphics.setColor(lowercolor)
         love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth)
         love.graphics.rectangle("fill", x + w - shaderWidth, y + shaderWidth*0, shaderWidth, h - shaderWidth*0)
+        love.graphics.setColor(1, 1, 1)
     end,
 
     setLimiterString = function(str, limit, limiterString)
