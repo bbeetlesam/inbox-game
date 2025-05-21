@@ -89,9 +89,9 @@ local utils = {
         return string.format("%02d:%02d %s", hour12, minute, period)
     end,
 
-    bevelRect = function(x, y, w, h, shaderWidth, baseColor, upperColor, lowerColor)
-        local lowercolor = upperColor or {0.3, 0.3, 0.3}
-        local uppercolor = lowerColor or {1, 1, 1}
+    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor)
+        local lowercolor = lowerColor or {0.3, 0.3, 0.3}
+        local uppercolor = upperColor or {1, 1, 1}
 
         love.graphics.setColor(baseColor)
         love.graphics.rectangle("fill", x, y, w, h)
