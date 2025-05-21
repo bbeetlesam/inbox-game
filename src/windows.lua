@@ -15,6 +15,7 @@ local window = {
         button = {
             size = 25,
             font = love.graphics.newFont(const.font.WIN95, 14),
+            isClicked = false,
         }
     },
     drag = {
@@ -42,6 +43,11 @@ function window.addItem(insertedItem)
 
         x = love.math.random(const.game.screen.WIDTH / 2 - window.size.x / 2 - 100, const.game.screen.WIDTH / 2 - window.size.x / 2 + 100),
         y = love.math.random(const.game.screen.HEIGHT / 2 - window.size.y / 2 - 100, const.game.screen.HEIGHT / 2 - window.size.y / 2 + 100),
+
+        isClicked = {
+            closeButton = false,
+            minimButton = false,
+        },
 
         hover = {
             closeButton = false,
@@ -83,7 +89,7 @@ function window.closeWindow(itemId)
     end
 end
 
-function window.cursorClickCheck(mousecCursor)
+function window.clickedCheck(mousecCursor)
     for i = #window.items, 1, -1 do -- from topmost to bottom
         local item = window.items[i]
         local winX, winY, winW, winH = item.x, item.y, window.size.x, window.size.y
@@ -127,14 +133,16 @@ function window.draw()
         love.graphics.setFont(window.header.font)
         love.graphics.print(windowLabel, item.x + 10, item.y + 10)
         -- window's header buttons (close and minimize)
-        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
-        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL)
+        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
+            item.isClicked.minimButton and const.color.WHITE or const.color.SILVER_BEVEL, item.isClicked.minimButton and const.color.SILVER_BEVEL or nil)
+        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
+            item.isClicked.closeButton and const.color.WHITE or const.color.SILVER_BEVEL, item.isClicked.closeButton and const.color.SILVER_BEVEL or nil)
         love.graphics.setFont(window.header.button.font)
         love.graphics.setColor(const.color.BLACK)
-        love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1) -- double draw to get bolder looks
-        love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
-        love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
-        love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
+        for _ = 1, 2 do -- double draw to get bolder looks
+            love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
+            love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
+        end
     end
     love.graphics.setColor(1, 1, 1) -- reset color
 end
@@ -144,10 +152,12 @@ function window.update(mouseCursor)
     for _, item in ipairs(window.items) do
         item.hover.minimButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size)
         item.hover.closeButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
+
+        window.header.button.isClicked = item.isClicked.minimButton or item.isClicked.closeButton
     end
 
     -- Dragging the window
-    if love.mouse.isDown(1) and window.drag.target then
+    if love.mouse.isDown(1) and window.drag.target and not window.header.button.isClicked then
         local item = window.drag.target
         if item then
             item.x = mouseCursor.x - window.drag.offset.x
