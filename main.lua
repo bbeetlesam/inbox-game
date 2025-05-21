@@ -60,19 +60,39 @@ end
 function love.mousepressed(_, _, button, _, presses)
     if button == 1 then
         apps.mousepressed(cursor)
-        windows.cursorClickCheck(cursor)
+        windows.clickedCheck(cursor)
         taskbar.iconClicked()
 
         for _, item in ipairs(windows.items) do
+            -- If close button is pressed
             if item.hover.closeButton then
-                windows.closeWindow(item.id)
-                break
+                item.isClicked.closeButton = true
+            end
+
+            -- If minimize button is pressed
+            if item.hover.minimButton then
+                item.isClicked.minimButton = true
             end
         end
 
         if presses == 2 and apps.selectedApp.id ~= nil and windows.clicked == false then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
             windows.addItem({apps.selectedApp.id, apps.selectedApp.icon})
+        end
+    end
+end
+
+function love.mousereleased(_, _, button, _, _)
+    if button == 1 then
+        for _, item in ipairs(windows.items) do
+            item.isClicked.closeButton = false
+            item.isClicked.minimButton = false
+
+            -- If close button is clicked
+            if item.hover.closeButton then
+                windows.closeWindow(item.id)
+                break
+            end
         end
     end
 end
