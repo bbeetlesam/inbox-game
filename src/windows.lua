@@ -198,12 +198,24 @@ function window.update(mouseCursor)
     -- Dragging the window
     if love.mouse.isDown(1) and window.drag.target and not window.header.button.isClicked then
         local item = window.drag.target
-        if item then
-            item.x = mouseCursor.x - window.drag.offset.x
-            item.y = mouseCursor.y - window.drag.offset.y
 
-            item.x = math.max(0, math.min(item.x, const.game.screen.WIDTH - window.size.x))
-            item.y = math.max(0, math.min(item.y, const.game.screen.HEIGHT - window.size.y))
+        local newX = mouseCursor.x - window.drag.offset.x
+        local newY = mouseCursor.y - window.drag.offset.y
+        if item then
+            -- Clamp to screen
+            local clampedX = math.max(0, math.min(newX, const.game.screen.WIDTH - window.size.x))
+            local clampedY = math.max(0, math.min(newY, const.game.screen.HEIGHT - window.size.y))
+
+            -- If clamped, update drag offset so window follows cursor smoothly
+            if clampedX ~= newX then
+                window.drag.offset.x = mouseCursor.x - clampedX
+            end
+            if clampedY ~= newY then
+                window.drag.offset.y = mouseCursor.y - clampedY
+            end
+
+            item.x = clampedX
+            item.y = clampedY
         end
     else
         window.drag.target = nil
