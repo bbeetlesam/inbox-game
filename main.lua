@@ -78,6 +78,7 @@ function love.mousepressed(_, _, button, _, presses)
         if presses == 2 and apps.selectedApp.id ~= nil and windows.clicked == false then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
             windows.addItem({apps.selectedApp.id, apps.selectedApp.icon})
+            taskbar.focusItem(apps.selectedApp.id, true)
         end
     end
 end

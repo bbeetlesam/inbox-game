@@ -81,6 +81,9 @@ function window.checkItemId(itemId)
 end
 
 function window.minimizeWindow(itemId)
+    local taskbar = require("src/taskbar")
+
+    -- Find and remove the window, saving its state
     for i, item in ipairs(window.items) do
         if item.id == itemId then
             -- Save the window state to minimized
@@ -88,6 +91,19 @@ function window.minimizeWindow(itemId)
             table.remove(window.items, i)
             break
         end
+    end
+
+    -- Unfocus the minimized app in the taskbar
+    for _, tItem in ipairs(taskbar.items) do
+        if tItem.id == itemId then
+            tItem.isClicked = false
+        end
+    end
+
+    -- Focus the next topmost window if any
+    if #window.items > 0 then
+        local topWindow = window.items[#window.items]
+        taskbar.focusItem(topWindow.id, true)
     end
 end
 
@@ -110,6 +126,7 @@ function window.closeWindow(itemId)
 end
 
 function window.clickedCheck(mousecCursor)
+    local taskbar = require("src/taskbar")
     for i = #window.items, 1, -1 do -- from topmost to bottom
         local item = window.items[i]
         local winX, winY, winW, winH = item.x, item.y, window.size.x, window.size.y
@@ -129,9 +146,11 @@ function window.clickedCheck(mousecCursor)
             -- Reorder window to last (top-most)
             table.remove(window.items, i)
             table.insert(window.items, item)
+            taskbar.focusItem(item.id, true)
             window.clicked = true
             return
         else
+            taskbar.focusItem(item.id, false)
             window.clicked = false
         end
     end

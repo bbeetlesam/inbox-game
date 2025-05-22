@@ -50,6 +50,7 @@ end
 
 apps.mousepressed = function(cursor)
     local windows = require "src/windows"
+    local taskbar = require "src/taskbar"
     local clickedApp = false
 
     for i, app in ipairs(apps.app) do
@@ -66,6 +67,7 @@ apps.mousepressed = function(cursor)
                 otherApp.isSelect = (i == j)
             end
 
+            taskbar.focusItem(apps.selectedApp.id, true)
             clickedApp = true
             break
         end

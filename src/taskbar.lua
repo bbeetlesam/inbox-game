@@ -142,6 +142,12 @@ taskbar.addItem = function(insertedItem)
     table.insert(taskbar.items, newItem)
 end
 
+function taskbar.focusItem(appId, focus)
+    for _, item in ipairs(taskbar.items) do
+        item.isClicked = (item.id == appId) and focus or false
+    end
+end
+
 taskbar.iconClicked = function()
     local window = require("src/windows")
 
@@ -174,7 +180,7 @@ taskbar.iconClicked = function()
                 end
             end
         else
-            item.isClicked = false
+            item.isClicked = (window.clicked and window.items[#window.items].id == item.id) or false
         end
     end
 
