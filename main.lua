@@ -29,6 +29,11 @@ end
 
 -- Draw the game. Called every frame
 function love.draw()
+    local wallpaperColor =
+        state.settings.wallpaper == "green" and const.color.DEEP_TEAL or
+        state.settings.wallpaper == "gray" and const.color.TROLLEY_GREY or
+        state.settings.wallpaper == "blue" and const.color.WALLPAPER_BLUE
+
     shaders.drawAppliedShader(function()
         love.graphics.push()
         love.graphics.translate(Game[1], Game[2])
@@ -36,7 +41,7 @@ function love.draw()
 
         love.graphics.setScissor(Game[1], Game[2], const.game.screen.WIDTH * Game[3], const.game.screen.HEIGHT * Game[4])
 
-        utils.core.setBaseBgColor(const.color.DEEP_TEAL)
+        utils.core.setBaseBgColor(wallpaperColor)
         apps.draw()
         windows.draw()
         taskbar.draw()
