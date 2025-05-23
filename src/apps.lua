@@ -1,6 +1,5 @@
 local utils = require "src/utils"
 local const = require "src/const"
-local windows = require "src/windows"
 
 local apps = {
     labelFont = love.graphics.newFont(const.font.WIN95, 16),
@@ -50,6 +49,8 @@ apps.update = function(cursor)
 end
 
 apps.mousepressed = function(cursor)
+    local windows = require "src/windows"
+    local taskbar = require "src/taskbar"
     local clickedApp = false
 
     for i, app in ipairs(apps.app) do
@@ -66,6 +67,7 @@ apps.mousepressed = function(cursor)
                 otherApp.isSelect = (i == j)
             end
 
+            taskbar.focusItem(apps.selectedApp.id, true)
             clickedApp = true
             break
         end

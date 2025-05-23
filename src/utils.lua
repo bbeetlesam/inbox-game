@@ -64,12 +64,54 @@ local utils = {
 
     drawImage = function(image, x, y, size)
         local width, height = image:getDimensions()
+        love.graphics.setColor(1, 1, 1)
         love.graphics.draw(image, x, y, 0, size / width, size / height)
     end,
 
     rectButton = function(cursor, x, y, w, h)
         return (cursor.x >= x and cursor.x <= x + w and cursor.y >= y and cursor.y <= y + h)
     end,
+
+    formatTime = function(hour, minute, format)
+        local period = "AM"
+        if hour >= 12 then
+            period = "PM"
+        end
+
+        local hour12 = hour % 12
+        if hour12 == 0 then
+            hour12 = 12
+        end
+
+        if format == "24" then
+            return string.format("%02d:%02d", hour, minute)
+        end
+        return string.format("%02d:%02d %s", hour12, minute, period)
+    end,
+
+    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor)
+        local lowercolor = lowerColor or {0.3, 0.3, 0.3}
+        local uppercolor = upperColor or {1, 1, 1}
+
+        love.graphics.setColor(baseColor)
+        love.graphics.rectangle("fill", x, y, w, h)
+        love.graphics.setColor(uppercolor)
+        love.graphics.rectangle("fill", x, y, w, shaderWidth)
+        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth)
+        love.graphics.setColor(lowercolor)
+        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth)
+        love.graphics.rectangle("fill", x + w - shaderWidth, y + shaderWidth*0, shaderWidth, h - shaderWidth*0)
+        love.graphics.setColor(1, 1, 1)
+    end,
+
+    setLimiterString = function(str, limit, limiterString)
+        local limiterstr = limiterString or "..."
+        if #str <= limit then
+            return str
+        elseif #str > limit then
+            return str:sub(1, limit - #limiterstr) .. limiterstr
+        end
+    end
 }
 
 return utils

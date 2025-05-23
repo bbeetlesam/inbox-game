@@ -23,6 +23,7 @@ function love.update(dt)
     shaders.update()
     cursor.update()
     apps.update(cursor)
+    taskbar.update(cursor)
     windows.update(cursor)
 end
 
@@ -38,7 +39,7 @@ function love.draw()
         utils.core.setBaseBgColor(const.color.DEEP_TEAL)
         apps.draw()
         windows.draw()
-        taskbar.drawTaskbar()
+        taskbar.draw()
         cursor.draw()
 
         love.graphics.setScissor()
@@ -59,18 +60,48 @@ end
 function love.mousepressed(_, _, button, _, presses)
     if button == 1 then
         apps.mousepressed(cursor)
-        windows.cursorClickCheck(cursor)
+        windows.clickedCheck(cursor)
+        taskbar.iconClicked()
 
-        for _, item in ipairs(windows.items) do
+        local item = windows.items[#windows.items]
+        if item then
+            -- If close button is pressed
             if item.hover.closeButton then
-                windows.closeWindow(item.id)
-                break
+                item.isClicked.closeButton = true
+            end
+
+            -- If minimize button is pressed
+            if item.hover.minimButton then
+                item.isClicked.minimButton = true
             end
         end
 
+        -- If clicking two times on app's shortcut
         if presses == 2 and apps.selectedApp.id ~= nil and windows.clicked == false then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
             windows.addItem({apps.selectedApp.id, apps.selectedApp.icon})
+            taskbar.focusItem(apps.selectedApp.id, true)
+        end
+    end
+end
+
+function love.mousereleased(_, _, button, _, _)
+    if button == 1 then
+        -- Windows stufs
+        local item = windows.items[#windows.items]
+        if item then
+            item.isClicked.closeButton = false
+            item.isClicked.minimButton = false
+
+            -- If close button is clicked
+            if item.hover.closeButton then
+                windows.closeWindow(item.id)
+            end
+
+            -- If minimize button is clicked
+            if item.hover.minimButton then
+                windows.minimizeWindow(item.id)
+            end
         end
     end
 end
