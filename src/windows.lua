@@ -6,6 +6,7 @@ local cursor = require ("src/cursor")
 ---@class WindowItem
 ---@field x number
 ---@field y number
+---@field size { x: number, y: number, outline: number }
 
 local window = {
     items = {},
@@ -24,9 +25,20 @@ local window = {
         target = nil ---@type WindowItem|nil
     },
     clicked = false,
-
-    size = {x = 803, y = 703, outline = 3}, -- for debugging reason
+    size = {},
 }
+
+function window.checkItemId(itemId, attr)
+    if itemId == "mail" then
+        return (attr == "label" and "Mail") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+    elseif itemId == "date" then
+        return (attr == "label" and "NetMatch") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+    elseif itemId == "file" then
+        return (attr == "label" and "File") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+    elseif itemId == "settings" then
+        return (attr == "label" and "Settings") or (attr == "size" and {603, 503}) or (attr == "content" and {603 - 3*2 - 2, 503 - window.header.height - 3})
+    end
+end
 
 function window.addItem(insertedItem)
     -- If window is minimized, restore it
@@ -46,12 +58,19 @@ function window.addItem(insertedItem)
         end
     end
 
+    local windowSizeX, windowSizeY = window.checkItemId(insertedItem[1], "size")[1], window.checkItemId(insertedItem[1], "size")[2]
     local newItem = {
         id = insertedItem[1],
         icon = insertedItem[2],
 
-        x = love.math.random(const.game.screen.WIDTH / 2 - window.size.x / 2 - 100, const.game.screen.WIDTH / 2 - window.size.x / 2 + 100),
-        y = love.math.random(const.game.screen.HEIGHT / 2 - window.size.y / 2 - 100, const.game.screen.HEIGHT / 2 - window.size.y / 2 + 100),
+        size = {
+            x = windowSizeX,
+            y = windowSizeY,
+            outline = 3,
+        },
+
+        x = love.math.random(const.game.screen.WIDTH / 2 - windowSizeX / 2 - 100, const.game.screen.WIDTH / 2 - windowSizeX / 2 + 100),
+        y = love.math.random(const.game.screen.HEIGHT / 2 - windowSizeY / 2 - 100, const.game.screen.HEIGHT / 2 - windowSizeY / 2 + 100),
 
         isClicked = {
             closeButton = false,
@@ -66,18 +85,6 @@ function window.addItem(insertedItem)
     }
 
     table.insert(window.items, newItem)
-end
-
-function window.checkItemId(itemId)
-    if itemId == "mail" then
-        return "Mail"
-    elseif itemId == "date" then
-        return "NetMatch"
-    elseif itemId == "file" then
-        return "File"
-    elseif itemId == "settings" then
-        return "Settings"
-    end
 end
 
 function window.minimizeWindow(itemId)
@@ -129,8 +136,8 @@ function window.clickedCheck(mousecCursor)
     local taskbar = require("src/taskbar")
     for i = #window.items, 1, -1 do -- from topmost to bottom
         local item = window.items[i]
-        local winX, winY, winW, winH = item.x, item.y, window.size.x, window.size.y
-        local headerX, headerY, headerW, headerH = item.x + 3, item.y + 3, window.size.x - 3*2, window.header.height - 3*2
+        local winX, winY, winW, winH = item.x, item.y, item.size.x, item.size.y
+        local headerX, headerY, headerW, headerH = item.x + 3, item.y + 3, item.size.x - 3*2, window.header.height - 3*2
 
         -- Check if the mouse is inside header area (click to drag)
         if item.hover.header then
@@ -158,29 +165,29 @@ end
 
 function window.draw()
     for _, item in ipairs(window.items) do
-        local windowLabel = window.checkItemId(item.id)
+        local windowLabel = window.checkItemId(item.id, "label")
         local headerColor = (item.id == window.items[#window.items].id and const.color.NAVY_BLUE or utils.setRGB(130, 130, 130))
 
         -- window's base
-        utils.bevelRect(item.x, item.y, window.size.x, window.size.y, window.size.outline, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
+        utils.bevelRect(item.x, item.y, item.size.x, item.size.y, item.size.outline, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
         -- window's header
-        item.hover.header = utils.rectButton(cursor, item.x + 3, item.y + 3, window.size.x - 3*2, window.header.height - 3*2)
+        item.hover.header = utils.rectButton(cursor, item.x + 3, item.y + 3, item.size.x - 3*2, window.header.height - 3*2)
         love.graphics.setColor(headerColor)
-        love.graphics.rectangle("fill", item.x + 3, item.y + 3, window.size.x - 3*2 - 2, window.header.height - 3*2)
+        love.graphics.rectangle("fill", item.x + 3, item.y + 3, item.size.x - 3*2 - 2, window.header.height - 3*2)
         -- window's header text
         love.graphics.setColor(1, 1, 1)
         love.graphics.setFont(window.header.font)
         love.graphics.print(windowLabel, item.x + 10, item.y + 10)
         -- window's header buttons (close and minimize)
-        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
+        utils.bevelRect(item.x + item.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
             item.isClicked.minimButton and const.color.WHITE or const.color.SILVER_BEVEL, item.isClicked.minimButton and const.color.SILVER_BEVEL or nil)
-        utils.bevelRect(item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
+        utils.bevelRect(item.x + item.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size, 2, const.color.SILVER_TASKBAR,
             item.isClicked.closeButton and const.color.WHITE or const.color.SILVER_BEVEL, item.isClicked.closeButton and const.color.SILVER_BEVEL or nil)
         love.graphics.setFont(window.header.button.font)
         love.graphics.setColor(const.color.BLACK)
         for _ = 1, 2 do -- double draw to get bolder looks
-            love.graphics.print("_", item.x + window.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
-            love.graphics.print("X", item.x + window.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
+            love.graphics.print("_", item.x + item.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
+            love.graphics.print("X", item.x + item.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
         end
     end
     love.graphics.setColor(1, 1, 1) -- reset color
@@ -189,8 +196,8 @@ end
 function window.update(mouseCursor)
     -- Update hover states for close and minimize buttons
     for _, item in ipairs(window.items) do
-        item.hover.minimButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size)
-        item.hover.closeButton = utils.rectButton(cursor, item.x + window.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
+        item.hover.minimButton = utils.rectButton(cursor, item.x + item.size.x - window.header.button.size - 15/2 - 27.5, item.y + 15/2, window.header.button.size, window.header.button.size)
+        item.hover.closeButton = utils.rectButton(cursor, item.x + item.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
 
         window.header.button.isClicked = item.isClicked.minimButton or item.isClicked.closeButton
     end
@@ -203,8 +210,8 @@ function window.update(mouseCursor)
         local newY = mouseCursor.y - window.drag.offset.y
         if item then
             -- Clamp to screen
-            local clampedX = math.max(0, math.min(newX, const.game.screen.WIDTH - window.size.x))
-            local clampedY = math.max(0, math.min(newY, const.game.screen.HEIGHT - window.size.y))
+            local clampedX = math.max(0, math.min(newX, const.game.screen.WIDTH - item.size.x))
+            local clampedY = math.max(0, math.min(newY, const.game.screen.HEIGHT - item.size.y))
 
             -- If clamped, update drag offset so window follows cursor smoothly
             if clampedX ~= newX then
