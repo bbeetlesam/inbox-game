@@ -63,7 +63,8 @@ function love.mousepressed(_, _, button, _, presses)
         windows.clickedCheck(cursor)
         taskbar.iconClicked()
 
-        for _, item in ipairs(windows.items) do
+        local item = windows.items[#windows.items]
+        if item then
             -- If close button is pressed
             if item.hover.closeButton then
                 item.isClicked.closeButton = true
@@ -75,6 +76,7 @@ function love.mousepressed(_, _, button, _, presses)
             end
         end
 
+        -- If clicking two times on app's shortcut
         if presses == 2 and apps.selectedApp.id ~= nil and windows.clicked == false then
             taskbar.addItem({apps.selectedApp.id, apps.selectedApp.icon})
             windows.addItem({apps.selectedApp.id, apps.selectedApp.icon})
@@ -86,20 +88,19 @@ end
 function love.mousereleased(_, _, button, _, _)
     if button == 1 then
         -- Windows stufs
-        for _, item in ipairs(windows.items) do
+        local item = windows.items[#windows.items]
+        if item then
             item.isClicked.closeButton = false
             item.isClicked.minimButton = false
 
             -- If close button is clicked
             if item.hover.closeButton then
                 windows.closeWindow(item.id)
-                break
             end
 
             -- If minimize button is clicked
             if item.hover.minimButton then
                 windows.minimizeWindow(item.id)
-                break
             end
         end
     end
