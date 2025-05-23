@@ -14,6 +14,8 @@ local const = {
 
     color = {
         DEEP_TEAL = utils.setRGB(0, 128, 128),
+        TROLLEY_GREY = utils.setRGB(65, 74, 81),
+        WALLPAPER_BLUE = utils.setRGB(52, 107, 161),
         SILVER_TASKBAR = utils.setRGB(192, 192, 192),
         NAVY_BLUE = utils.setRGB(0, 0, 128),
         BLACK = utils.setRGB(0, 0, 0),
