@@ -7,6 +7,7 @@ local cursor = require("src/cursor")
 local taskbar = require("src/taskbar")
 local apps = require("src/apps")
 local windows = require("src/windows")
+local appsManager = require("src/apps/appsManager")
 
 -- Load the game. Called once at the beginning of the game
 function love.load()
@@ -15,6 +16,7 @@ function love.load()
     Game = {utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)}
 
     shaders.init()
+    appsManager.init()
 end
 
 -- Update the game. Called every frame
@@ -52,14 +54,6 @@ function love.draw()
         love.graphics.pop()
     end,
     {shaders.grainyNoise, shaders.barrelDistortion}, {love.graphics.getWidth(), love.graphics.getHeight()})
-end
-
-function love.keyreleased(key, _, _)
-    if key == "escape" then
-        love.event.quit()
-    elseif key == "f11" then
-        utils.core.toggleFullscreen()
-    end
 end
 
 function love.mousepressed(_, _, button, _, presses)
@@ -108,6 +102,14 @@ function love.mousereleased(_, _, button, _, _)
                 windows.minimizeWindow(item.id)
             end
         end
+    end
+end
+
+function love.keyreleased(key, _, _)
+    if key == "escape" then
+        love.event.quit()
+    elseif key == "f11" then
+        utils.core.toggleFullscreen()
     end
 end
 
