@@ -89,18 +89,24 @@ local utils = {
         return string.format("%02d:%02d %s", hour12, minute, period)
     end,
 
-    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor)
+    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor, bevelPlacement)
         local lowercolor = lowerColor or {0.3, 0.3, 0.3}
         local uppercolor = upperColor or {1, 1, 1}
+        local bevelPlace = bevelPlacement or {1, 1, 1, 1} -- top, right, bottom, left
 
         love.graphics.setColor(baseColor)
         love.graphics.rectangle("fill", x, y, w, h)
         love.graphics.setColor(uppercolor)
-        love.graphics.rectangle("fill", x, y, w, shaderWidth)
-        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth)
+        love.graphics.rectangle("fill", x, y, w, shaderWidth) -- top
+        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth) -- left
         love.graphics.setColor(lowercolor)
-        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth)
-        love.graphics.rectangle("fill", x + w - shaderWidth, y + shaderWidth*0, shaderWidth, h - shaderWidth*0)
+        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth) -- down
+        love.graphics.rectangle("fill", x + w - shaderWidth, y, shaderWidth, h) -- right
+
+        if bevelPlace[1] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y, w, shaderWidth) end -- top
+        if bevelPlace[4] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y, shaderWidth, h) end -- left
+        if bevelPlace[3] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth) end -- right
+        if bevelPlace[2] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x + w - shaderWidth, y, shaderWidth, h) end -- bottom
         love.graphics.setColor(1, 1, 1)
     end,
 
