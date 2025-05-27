@@ -46,7 +46,13 @@ mail.draw = function()
     utils.printCenterText("Apply", mail.lowerButton.startX + mail.lowerButton.w/2*5 + mail.lowerButton.gapX*2, mail.lowerButton.startY + 17.5, false, const.color.BLACK)
 end
 
-mail.update = function(cursor)
+mail.update = function(mouseCursor, offsets)
+    local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
+
+    -- Code updates goes here
+    mail.lowerButton.okRect = utils.rectButton(cursor, mail.lowerButton.startX, mail.lowerButton.startY, mail.lowerButton.w, mail.lowerButton.h)
+    mail.lowerButton.cancelRect = utils.rectButton(cursor, mail.lowerButton.startX + (mail.lowerButton.w + mail.lowerButton.gapX), mail.lowerButton.startY, mail.lowerButton.w, mail.lowerButton.h)
+    mail.lowerButton.applyRect = utils.rectButton(cursor, mail.lowerButton.startX + (mail.lowerButton.w + mail.lowerButton.gapX)*2, mail.lowerButton.startY, mail.lowerButton.w, mail.lowerButton.h)
 end
 
 return mail

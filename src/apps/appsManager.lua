@@ -8,9 +8,13 @@ appsManager.init = function()
     settings.load(window.checkItemId("settings", "content"))
 end
 
-appsManager.update = function(appId, cursor)
+appsManager.update = function(appId, cursor, baseCoordinate, windowAttributes)
+    local windowHeaderHeight, windowOutlineSize = windowAttributes[1], windowAttributes[2]
+    local offsetX = baseCoordinate[1] + windowOutlineSize
+    local offsetY = baseCoordinate[2] + windowOutlineSize + windowHeaderHeight - 3*2
+
     if appId == "settings" then
-        settings.update(cursor)
+        settings.update(cursor, {offsetX, offsetY})
     end
 end
 

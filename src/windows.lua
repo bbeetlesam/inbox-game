@@ -208,7 +208,7 @@ function window.update(mouseCursor)
         item.hover.closeButton = utils.rectButton(cursor, item.x + item.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
 
         window.header.button.isClicked = item.isClicked.minimButton or item.isClicked.closeButton
-        appsManager.update(item.id, mouseCursor)
+        appsManager.update(item.id, mouseCursor, {item.x, item.y}, {window.header.height, item.size.outline})
     end
 
     -- Dragging the window
