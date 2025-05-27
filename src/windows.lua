@@ -1,6 +1,7 @@
 local utils = require ("src/utils")
 local const = require ("src/const")
 local cursor = require ("src/cursor")
+local appsManager = require ("src/apps/appsManager")
 
 -- need this bcs there'd be a warning bout the type of the table in window.update()
 ---@class WindowItem
@@ -29,14 +30,19 @@ local window = {
 }
 
 function window.checkItemId(itemId, attr)
+    local mail = {x = 803, y = 703}
+    local date = {x = 803, y = 703}
+    local file = {x = 803, y = 703}
+    local settings = {x = 603, y = 643}
+
     if itemId == "mail" then
-        return (attr == "label" and "Mail") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+        return (attr == "label" and "Mail") or (attr == "size" and {mail.x, mail.y}) or (attr == "content" and {mail.x - 3*2 - 2, mail.y - window.header.height - 3})
     elseif itemId == "date" then
-        return (attr == "label" and "NetMatch") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+        return (attr == "label" and "NetMatch") or (attr == "size" and {date.x, date.y}) or (attr == "content" and {date.x - 3*2 - 2, date.y - window.header.height - 3})
     elseif itemId == "file" then
-        return (attr == "label" and "File") or (attr == "size" and {803, 703}) or (attr == "content" and {803 - 3*2 - 2, 703 - window.header.height - 3})
+        return (attr == "label" and "File") or (attr == "size" and {file.x, file.y}) or (attr == "content" and {file.x - 3*2 - 2, file.y - window.header.height - 3})
     elseif itemId == "settings" then
-        return (attr == "label" and "Settings") or (attr == "size" and {603, 503}) or (attr == "content" and {603 - 3*2 - 2, 503 - window.header.height - 3})
+        return (attr == "label" and "Settings") or (attr == "size" and {settings.x, settings.y}) or (attr == "content" and {settings.x - 3*2 - 2, settings.y - window.header.height - 3})
     end
 end
 
@@ -189,6 +195,8 @@ function window.draw()
             love.graphics.print("_", item.x + item.size.x - window.header.button.size - 15/2 - 27.5 + 5 + 3, item.y + 15/2 + 5 + 1)
             love.graphics.print("X", item.x + item.size.x - window.header.button.size - 15/2 + 5 + 3, item.y + 15/2 + 5 + 1)
         end
+        -- window's contents
+        appsManager.draw(item.id, {item.x, item.y}, {item.size.x, item.size.y, window.header.height, item.size.outline})
     end
     love.graphics.setColor(1, 1, 1) -- reset color
 end
@@ -200,6 +208,7 @@ function window.update(mouseCursor)
         item.hover.closeButton = utils.rectButton(cursor, item.x + item.size.x - window.header.button.size - 15/2, item.y + 15/2, window.header.button.size, window.header.button.size)
 
         window.header.button.isClicked = item.isClicked.minimButton or item.isClicked.closeButton
+        appsManager.update(item.id, mouseCursor)
     end
 
     -- Dragging the window
