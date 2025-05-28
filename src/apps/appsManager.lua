@@ -35,4 +35,16 @@ appsManager.draw = function(appId, baseCoordinate, windowAttributes)
     love.graphics.pop()
 end
 
+appsManager.firstClickedCheck = function(appId)
+    if appId == "settings" then
+        settings.firstClickedCheck()
+    end
+end
+
+appsManager.lastClickedCheck = function(appId)
+    if appId == "settings" then
+        settings.lastClickedCheck()
+    end
+end
+
 return appsManager
