@@ -50,15 +50,15 @@ local utils = {
         local font = love.graphics.getFont()
         local textWidth = font:getWidth(text)
         local textHeight = font:getHeight()
+        local prevColor = {love.graphics.getColor()}
 
         if useBorder then
             love.graphics.setColor(borderColor or {1, 1, 1})
             love.graphics.rectangle("fill", centerX - textWidth / 2 - (borderOffset[1] or 1), centerY - textHeight / 2 - (borderOffset[2] or 1),
             textWidth + (borderOffset[1] or 1) * 2, textHeight + (borderOffset[2] or 1) * 2)
-
-            love.graphics.setColor(1, 1, 1)
         end
 
+        love.graphics.setColor(prevColor)
         love.graphics.print(text, centerX - textWidth / 2, centerY - textHeight / 2)
     end,
 
