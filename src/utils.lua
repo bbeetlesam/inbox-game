@@ -117,7 +117,41 @@ local utils = {
         elseif #str > limit then
             return str:sub(1, limit - #limiterstr) .. limiterstr
         end
-    end
+    end,
 }
+
+utils.copyTable = function(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[utils.copyTable(orig_key)] = utils.copyTable(orig_value)
+        end
+        setmetatable(copy, utils.copyTable(getmetatable(orig)))
+    else
+        copy = orig
+    end
+    return copy
+end
+
+utils.isTablesEqual = function(t1, t2)
+    if t1 == t2 then return true end
+    if type(t1) ~= "table" or type(t2) ~= "table" then return false end
+
+    -- Check all keys in t1
+    for k, v in pairs(t1) do
+        if not utils.isTablesEqual(v, t2[k]) then
+            return false
+        end
+    end
+    -- Check for extra keys in t2
+    for k in pairs(t2) do
+        if t1[k] == nil then
+            return false
+        end
+    end
+    return true
+end
 
 return utils
