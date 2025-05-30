@@ -1,10 +1,12 @@
 local const = require("src/const")
 local utils = require("src/utils")
+local state = require("src/state")
 
 local settings = {
     content = {
         width = 0, height = 0,
-        previousSettings = nil, -- to store previous settings before applying changes
+        previousSettings = state.settings, -- to store previous settings before applying changes
+        currentSettings = state.settings, -- to store current settings
         selectedSection = "wallpaper",
     },
     font = {
@@ -25,6 +27,16 @@ local settings = {
         permissions = {height = 35, hoverRect = false},
         about = {height = 35, hoverRect = false},
     },
+    wallpaper = {
+        selectedColor = state.settings.wallpaper,
+        isHovered = {false, false, false}, -- green, blue, gray
+        isClicked = {false, false, false}, -- green, blue, gray
+        colors = {
+            green = {const.color.DEEP_TEAL, "Green"},
+            blue  = {const.color.WALLPAPER_BLUE, "Blue"},
+            gray  = {const.color.TROLLEY_GREY, "Gray"},
+        },
+    },
 }
 
 -- Helpers (to break long fvkin codes)
@@ -40,6 +52,39 @@ settings.load = function(contentSizes)
     settings.lowerButton.startX = settings.innerBevel.w - (settings.lowerButton.w*3 + settings.lowerButton.gapX*2) + 10
     settings.lowerButton.startY = settings.content.height/2 - settings.innerBevel.h/2 + settings.innerBevel.h + 2.5 + 5
     settings.upperButton.startY = settings.innerBevel.startY - 35 + 3
+end
+
+settings.saveChangedSettings = function()
+    state.settings = settings.content.currentSettings
+end
+
+settings.drawWallpaperSection = function()
+    local x, y = settings.innerBevel.startX, settings.innerBevel.startY
+    local computer = {w = 250, h = 188, inW = 210, inH = 157}
+    computer.x, computer.y = (x+settings.innerBevel.w)/2 - computer.w/2, y + 35
+    local wallpaper = settings.content.previousSettings.wallpaper
+
+    -- computer drawings
+    utils.bevelRect(computer.x+computer.w/2 - 100/2, computer.y + computer.h - 3, 100, 13, 3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE, {0, 1, 1, 1})
+    utils.bevelRect(computer.x, computer.y, computer.w, computer.h, 4, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
+    utils.bevelRect(computer.x + (computer.w-computer.inW)/2, computer.y + (computer.h-computer.inH)/2, computer.inW, computer.inH, 3,
+        settings.wallpaper.colors[settings.wallpaper.selectedColor][1], const.color.WHITE, const.color.SILVER_BEVEL)
+    utils.bevelRect(computer.x+computer.w/2 - 200/2, computer.y + computer.h + 10, 200, 9, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
+    -- below computer
+    utils.bevelRect(computer.x + computer.w/2 - 260/2, computer.y + computer.h + 10 + 9 + 30, 260, 180, 1, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.SILVER_BEVEL) -- outer outline
+    utils.bevelRect(computer.x + computer.w/2 - 240/2, computer.y + computer.h + 10 + 9 + 45, 240, 100, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- inner menu
+    love.graphics.setColor(const.color.BLACK)
+    love.graphics.setFont(settings.font.header)
+    utils.printCenterText("Wallpaper", computer.x + computer.w/2 - 83, computer.y + computer.h + 10 + 9 + 30, true, const.color.SILVER_TASKBAR, {1, 1})
+    for i, name in ipairs({"green", "blue", "gray"}) do
+        local color = settings.wallpaper.colors[name]
+        if settings.wallpaper.selectedColor == name then
+            love.graphics.setColor(const.color.NAVY_BLUE)
+            love.graphics.rectangle("fill", computer.x + computer.w/2 - 240/2 + 3, computer.y + computer.h + 10 + 9 + 45 + 3 + (i-1)*20, 240 - 6, 20)
+        end
+        love.graphics.setColor(settings.wallpaper.selectedColor == name and const.color.WHITE or const.color.BLACK)
+        love.graphics.print(color[2], computer.x + computer.w/2 - 240/2 + 5, computer.y + computer.h + 10 + 9 + 45 + 5 + (i-1)*20)
+    end
 end
 
 settings.draw = function()
@@ -74,6 +119,16 @@ settings.draw = function()
     utils.printCenterText("OK", settings.lowerButton.startX + settings.lowerButton.w/2, settings.lowerButton.startY + 17.5, false, const.color.BLACK)
     utils.printCenterText("Cancel", settings.lowerButton.startX + settings.lowerButton.w/2*3 + settings.lowerButton.gapX, settings.lowerButton.startY + 17.5, false, const.color.BLACK)
     utils.printCenterText("Apply", settings.lowerButton.startX + settings.lowerButton.w/2*5 + settings.lowerButton.gapX*2, settings.lowerButton.startY + 17.5, false, const.color.BLACK)
+    -- current selected section
+    if settings.content.selectedSection == "wallpaper" then
+        settings.drawWallpaperSection()
+    elseif settings.content.selectedSection == "general" then
+        -- settings.drawGeneralSection()
+    elseif settings.content.selectedSection == "permissions" then
+        -- settings.drawPermissionsSection()
+    elseif settings.content.selectedSection == "about" then
+        -- settings.drawAboutSection()
+    end
 end
 
 settings.update = function(mouseCursor, offsets)
@@ -94,6 +149,12 @@ settings.update = function(mouseCursor, offsets)
     settings.upperButton.general.height = ifSelectedSection("general", 41, 35)
     settings.upperButton.permissions.height = ifSelectedSection("permissions", 41, 35)
     settings.upperButton.about.height = ifSelectedSection("about", 41, 35)
+
+    for i, _ in ipairs({"green", "blue", "gray"}) do
+        local computer = {w = 250, h = 188, inW = 210, inH = 157}
+        computer.x, computer.y = (settings.innerBevel.startX+settings.innerBevel.w)/2 - computer.w/2, settings.innerBevel.startY + 35
+        settings.wallpaper.isHovered[i] = utils.rectButton(cursor, computer.x + computer.w/2 - 240/2 + 3, computer.y + computer.h + 10 + 9 + 45 + 3 + (i-1)*20, 240 - 6, 20)
+    end
 end
 
 settings.firstClickedCheck = function()
@@ -112,6 +173,16 @@ settings.firstClickedCheck = function()
     elseif settings.upperButton.permissions.hoverRect then settings.content.selectedSection = "permissions"
     elseif settings.upperButton.about.hoverRect then settings.content.selectedSection = "about"
     end
+
+    -- Wallpaper section's buttons
+    for i, name in ipairs({"green", "blue", "gray"}) do
+        if settings.wallpaper.isHovered[i] then
+            settings.wallpaper.isClicked[i] = true
+            settings.wallpaper.selectedColor = name
+        else
+            settings.wallpaper.isClicked[i] = false
+        end
+    end
 end
 
 settings.lastClickedCheck = function()
@@ -119,8 +190,11 @@ settings.lastClickedCheck = function()
 
     if settings.lowerButton.ok.isClicked and settings.lowerButton.ok.isHovered then -- save and close settings
         settings.lowerButton.ok.isClicked = false
+        settings.content.selectedSection = "wallpaper"
+        window.closeWindow("settings")
     elseif settings.lowerButton.cancel.isClicked and settings.lowerButton.cancel.isHovered then -- cancel any changes and close settings
         settings.lowerButton.cancel.isClicked = false
+        settings.content.selectedSection = "wallpaper"
         window.closeWindow("settings")
     elseif settings.lowerButton.apply.isClicked and settings.lowerButton.apply.isHovered then -- save but keep settings open
         settings.lowerButton.apply.isClicked = false
