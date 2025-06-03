@@ -35,6 +35,17 @@ local utils = {
             local isFullscreen = love.window.getFullscreen()
             love.window.setFullscreen(not isFullscreen)
         end,
+
+        -- Applied only when taking screenshots of this game (used in itch.io page)
+        screenshotMode = function(screenSize, outlineThickness, outlineColor)
+            outlineThickness = outlineThickness or 3
+            love.graphics.setBackgroundColor(love.math.colorFromBytes(192, 192, 192)) -- const.color.SILVER_TASKBAR
+
+            love.graphics.setColor(outlineColor or {0, 0, 0})
+            love.graphics.setLineWidth(outlineThickness)
+            love.graphics.rectangle("line", 0 + outlineThickness/2, 0 + outlineThickness/2, screenSize[1] - outlineThickness, screenSize[2] - outlineThickness)
+            love.graphics.setColor(1, 1, 1)
+        end,
     },
 
     setRGB = function(...)
@@ -116,6 +127,23 @@ local utils = {
             return str
         elseif #str > limit then
             return str:sub(1, limit - #limiterstr) .. limiterstr
+        end
+    end,
+
+    drawSectionDivider = function(mode, x, y, length, thickness, color1, color2)
+        color1 = color1 or {0.45, 0.45, 0.45}
+        color2 = color2 or {1, 1, 1}
+
+        if mode == "horizontal" then
+            love.graphics.setColor(color1 or love.math.colorFromBytes(115, 115, 115))
+            love.graphics.rectangle("fill", x, y, length, thickness)
+            love.graphics.setColor(color2 or {1, 1, 1})
+            love.graphics.rectangle("fill", x, y + thickness, length, thickness)
+        elseif mode == "vertical" then
+            love.graphics.setColor(color1 or love.math.colorFromBytes(115, 115, 115))
+            love.graphics.rectangle("fill", x, y, thickness, length)
+            love.graphics.setColor(color2 or {1, 1, 1})
+            love.graphics.rectangle("fill", x + thickness, y, thickness, length)
         end
     end,
 }
