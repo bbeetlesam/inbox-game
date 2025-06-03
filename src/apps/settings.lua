@@ -10,7 +10,8 @@ local settings = {
         selectedSection = "wallpaper",
     },
     font = {
-        header = love.graphics.newFont(const.font.WIN95, 18),
+        default = love.graphics.newFont(const.font.WIN95, 18),
+        generalNumber = love.graphics.newFont(const.font.WIN95, 24),
     },
     innerBevel = {
         w = 575, h = 500,
@@ -36,6 +37,10 @@ local settings = {
             gray  = {const.color.TROLLEY_GREY, "Gray"},
         },
     },
+    general = {
+        volume = {"Volume", love.graphics.newImage("assets/img/loudspeaker_rays-0.png"), buttonX = 0, buttonY = 0, isHovered = false, isClicked = false, dragStartX = 0, buttonStartX = 0},
+        brightness = {"Brightness", love.graphics.newImage("assets/img/kodak_imaging-0.png"), buttonX = 0, buttonY = 0, isHovered = false, isClicked = false, dragStartX = 0, buttonStartX = 0},
+    }
 }
 
 -- Helpers (to break long fvkin codes)
@@ -51,11 +56,27 @@ settings.load = function(contentSizes)
     settings.lowerButton.startX = settings.innerBevel.w - (settings.lowerButton.w*3 + settings.lowerButton.gapX*2) + 10
     settings.lowerButton.startY = settings.content.height/2 - settings.innerBevel.h/2 + settings.innerBevel.h + 2.5 + 5
     settings.upperButton.startY = settings.innerBevel.startY - 35 + 3
+
+    -- Refresh general section's buttons positions
+    for i, section in ipairs({"volume", "brightness"}) do
+        settings.general[section].buttonX = settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2) + (400 - 20)*(settings.content.currentSettings[section]/100)
+        settings.general[section].buttonY = settings.innerBevel.startY + 15 + 45 + 1 - 30/2 + (i-1)*(82 + 15)
+    end
 end
 
 settings.saveChangedSettings = function()
     state.settings = utils.copyTable(settings.content.currentSettings)
     settings.content.previousSettings = utils.copyTable(state.settings)
+end
+
+settings.resetStates = function()
+    settings.content.selectedSection = "wallpaper"
+    settings.content.currentSettings = utils.copyTable(state.settings)
+
+    for i, section in ipairs({"volume", "brightness"}) do
+        settings.general[section].buttonX = settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2) + (400 - 20)*(settings.content.currentSettings[section]/100)
+        settings.general[section].buttonY = settings.innerBevel.startY + 15 + 45 + 1 - 30/2 + (i-1)*(82 + 15)
+    end
 end
 
 settings.drawWallpaperSection = function()
@@ -74,7 +95,7 @@ settings.drawWallpaperSection = function()
     utils.bevelRect(computer.x + computer.w/2 - 260/2, computer.y + computer.h + 10 + 9 + 30, 260, 180, 1, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.SILVER_BEVEL) -- outer outline
     utils.bevelRect(computer.x + computer.w/2 - 240/2, computer.y + computer.h + 10 + 9 + 45, 240, 100, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- inner menu
     love.graphics.setColor(const.color.BLACK)
-    love.graphics.setFont(settings.font.header)
+    love.graphics.setFont(settings.font.default)
     utils.printCenterText("Wallpaper", computer.x + computer.w/2 - 83, computer.y + computer.h + 10 + 9 + 30, true, const.color.SILVER_TASKBAR, {1, 1})
     for i, name in ipairs({"green", "blue", "gray"}) do
         local color = settings.wallpaper.colors[name]
@@ -87,13 +108,34 @@ settings.drawWallpaperSection = function()
     end
 end
 
+settings.drawGeneralSection = function()
+    local x, y = settings.innerBevel.startX, settings.innerBevel.startY + 15
+    local but = {w = 20, h = 30}
+    local sections = {"volume", "brightness"}
+
+    for i, section in ipairs(sections) do
+        local xx = x + (settings.innerBevel.w/2 - 550/2)
+        local plus = (i-1)*(82 + 15)
+
+        utils.drawImage(settings.general[section][2], xx, y - 3 + plus, 20)
+        love.graphics.setColor(const.color.BLACK)
+        love.graphics.setFont(settings.font.default)
+        love.graphics.print(settings.general[section][1], xx + 25, y + plus) -- label
+        love.graphics.setFont(settings.font.generalNumber)
+        love.graphics.printf(settings.content.currentSettings[section], xx, y + 37 + plus, 550, "right") -- values
+        utils.bevelRect(xx, y + 45 + plus, 400, 6, 2, const.color.BLACK, const.color.WHITE, const.color.SILVER_BEVEL) -- button bar
+        utils.bevelRect(settings.general[section].buttonX, settings.general[section].buttonY, but.w, but.h, 3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE) -- button
+        utils.drawSectionDivider("horizontal", xx, y + 80 + plus, 550, 2)
+    end
+end
+
 settings.draw = function()
     -- inner rectangle
     utils.bevelRect(settings.innerBevel.startX, settings.innerBevel.startY, settings.innerBevel.w, settings.innerBevel.h,
         3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE)
     -- upper buttons
     local upperBArgs = {3, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.WHITE, {1, 1, 0, 1}}
-    love.graphics.setFont(settings.font.header)
+    love.graphics.setFont(settings.font.default)
     utils.bevelRect(settings.innerBevel.startX, settings.upperButton.startY - ifSelectedSection("wallpaper", 6, 0),
         100, settings.upperButton.wallpaper.height, unpack(upperBArgs))
     utils.bevelRect(settings.innerBevel.startX + 100, settings.upperButton.startY - ifSelectedSection("general", 6, 0),
@@ -124,7 +166,7 @@ settings.draw = function()
     if settings.content.selectedSection == "wallpaper" then
         settings.drawWallpaperSection()
     elseif settings.content.selectedSection == "general" then
-        -- settings.drawGeneralSection()
+        settings.drawGeneralSection()
     elseif settings.content.selectedSection == "permissions" then
         -- settings.drawPermissionsSection()
     elseif settings.content.selectedSection == "about" then
@@ -152,10 +194,27 @@ settings.update = function(mouseCursor, offsets)
     settings.upperButton.permissions.height = ifSelectedSection("permissions", 41, 35)
     settings.upperButton.about.height = ifSelectedSection("about", 41, 35)
 
+    -- Wallpaper section's buttons
     for i, _ in ipairs({"green", "blue", "gray"}) do
         local computer = {w = 250, h = 188, inW = 210, inH = 157}
         computer.x, computer.y = (settings.innerBevel.startX+settings.innerBevel.w)/2 - computer.w/2, settings.innerBevel.startY + 35
         settings.wallpaper.isHovered[i] = utils.rectButton(cursor, computer.x + computer.w/2 - 240/2 + 3, computer.y + computer.h + 10 + 9 + 45 + 3 + (i-1)*20, 240 - 6, 20)
+    end
+
+    -- General section's buttons
+    local but = {w = 20, h = 30}
+    local minX, maxX =  settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2), settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2) + 400 - but.w
+    for _, section in ipairs({"volume", "brightness"}) do
+        settings.general[section].isHovered = utils.rectButton(cursor, settings.general[section].buttonX, settings.general[section].buttonY, but.w, but.h)
+        if settings.general[section].isClicked then
+            local dx = mouseCursor.x - settings.general[section].dragStartX
+            local newX = settings.general[section].buttonStartX + dx
+            if newX < minX then newX = minX end
+            if newX > maxX then newX = maxX end
+            settings.general[section].buttonX = newX
+            local percent = ((settings.general[section].buttonX - minX)/(maxX - minX)) * 99 + 1
+            settings.content.currentSettings[section] = math.floor(percent + 0.5)
+        end
     end
 end
 
@@ -185,6 +244,18 @@ settings.firstClickedCheck = function()
             settings.wallpaper.isClicked[i] = false
         end
     end
+
+    -- General section's buttons
+    local cursor = require("src/cursor")
+    for _, section in ipairs({"volume", "brightness"}) do
+        if settings.general[section].isHovered then
+            settings.general[section].isClicked = true
+            settings.general[section].dragStartX = cursor.x
+            settings.general[section].buttonStartX = settings.general[section].buttonX
+        else
+            settings.general[section].isClicked = false
+        end
+    end
 end
 
 settings.lastClickedCheck = function()
@@ -204,10 +275,16 @@ settings.lastClickedCheck = function()
         settings.lowerButton.apply.isClicked = false
         settings.saveChangedSettings()
     end
-
     settings.lowerButton.ok.isClicked = false
     settings.lowerButton.cancel.isClicked = false
     settings.lowerButton.apply.isClicked = false
+
+    -- General section's buttons
+    for _, section in ipairs({"volume", "brightness"}) do
+        settings.general[section].isClicked = false
+        settings.general[section].dragStartX = 0
+        settings.general[section].buttonStartX = 0
+    end
 end
 
 return settings
