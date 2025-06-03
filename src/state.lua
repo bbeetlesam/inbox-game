@@ -17,8 +17,8 @@ local state = {
     },
     settings = {
         wallpaper = "green",
-        brightness = 1,
-        volume = 1,
+        brightness = 100,
+        volume = 70,
         permissions = {
             system = false,
             camera = false,
