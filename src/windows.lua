@@ -91,6 +91,7 @@ function window.addItem(insertedItem)
     }
 
     table.insert(window.items, newItem)
+    appsManager.resetAppsState(insertedItem[1])
 end
 
 function window.minimizeWindow(itemId)

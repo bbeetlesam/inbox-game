@@ -8,6 +8,13 @@ appsManager.init = function()
     settings.load(window.checkItemId("settings", "content"))
 end
 
+-- Reset all apps' states to default when the app is closed
+appsManager.resetAppsState = function(appId)
+    if appId == "settings" then
+        settings.resetStates()
+    end
+end
+
 appsManager.update = function(appId, cursor, baseCoordinate, windowAttributes)
     local windowHeaderHeight, windowOutlineSize = windowAttributes[1], windowAttributes[2]
     local offsetX = baseCoordinate[1] + windowOutlineSize
