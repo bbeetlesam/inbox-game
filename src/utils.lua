@@ -35,6 +35,17 @@ local utils = {
             local isFullscreen = love.window.getFullscreen()
             love.window.setFullscreen(not isFullscreen)
         end,
+
+        -- Applied only when taking screenshots of this game (used in itch.io page)
+        screenshotMode = function(screenSize, outlineThickness, outlineColor)
+            outlineThickness = outlineThickness or 3
+            love.graphics.setBackgroundColor(love.math.colorFromBytes(192, 192, 192)) -- const.color.SILVER_TASKBAR
+
+            love.graphics.setColor(outlineColor or {0, 0, 0})
+            love.graphics.setLineWidth(outlineThickness)
+            love.graphics.rectangle("line", 0 + outlineThickness/2, 0 + outlineThickness/2, screenSize[1] - outlineThickness, screenSize[2] - outlineThickness)
+            love.graphics.setColor(1, 1, 1)
+        end,
     },
 
     setRGB = function(...)
@@ -50,15 +61,15 @@ local utils = {
         local font = love.graphics.getFont()
         local textWidth = font:getWidth(text)
         local textHeight = font:getHeight()
+        local prevColor = {love.graphics.getColor()}
 
         if useBorder then
             love.graphics.setColor(borderColor or {1, 1, 1})
             love.graphics.rectangle("fill", centerX - textWidth / 2 - (borderOffset[1] or 1), centerY - textHeight / 2 - (borderOffset[2] or 1),
             textWidth + (borderOffset[1] or 1) * 2, textHeight + (borderOffset[2] or 1) * 2)
-
-            love.graphics.setColor(1, 1, 1)
         end
 
+        love.graphics.setColor(prevColor)
         love.graphics.print(text, centerX - textWidth / 2, centerY - textHeight / 2)
     end,
 
@@ -89,18 +100,24 @@ local utils = {
         return string.format("%02d:%02d %s", hour12, minute, period)
     end,
 
-    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor)
+    bevelRect = function(x, y, w, h, shaderWidth, baseColor, lowerColor, upperColor, bevelPlacement)
         local lowercolor = lowerColor or {0.3, 0.3, 0.3}
         local uppercolor = upperColor or {1, 1, 1}
+        local bevelPlace = bevelPlacement or {1, 1, 1, 1} -- top, right, bottom, left
 
         love.graphics.setColor(baseColor)
         love.graphics.rectangle("fill", x, y, w, h)
         love.graphics.setColor(uppercolor)
-        love.graphics.rectangle("fill", x, y, w, shaderWidth)
-        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth)
+        love.graphics.rectangle("fill", x, y, w, shaderWidth) -- top
+        love.graphics.rectangle("fill", x, y, shaderWidth, h - shaderWidth) -- left
         love.graphics.setColor(lowercolor)
-        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth)
-        love.graphics.rectangle("fill", x + w - shaderWidth, y + shaderWidth*0, shaderWidth, h - shaderWidth*0)
+        love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth) -- down
+        love.graphics.rectangle("fill", x + w - shaderWidth, y, shaderWidth, h) -- right
+
+        if bevelPlace[1] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y, w, shaderWidth) end -- top
+        if bevelPlace[4] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y, shaderWidth, h) end -- left
+        if bevelPlace[3] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x, y + h - shaderWidth, w, shaderWidth) end -- right
+        if bevelPlace[2] == 0 then love.graphics.setColor(baseColor) love.graphics.rectangle("fill", x + w - shaderWidth, y, shaderWidth, h) end -- bottom
         love.graphics.setColor(1, 1, 1)
     end,
 
@@ -111,7 +128,58 @@ local utils = {
         elseif #str > limit then
             return str:sub(1, limit - #limiterstr) .. limiterstr
         end
-    end
+    end,
+
+    drawSectionDivider = function(mode, x, y, length, thickness, color1, color2)
+        color1 = color1 or {0.45, 0.45, 0.45}
+        color2 = color2 or {1, 1, 1}
+
+        if mode == "horizontal" then
+            love.graphics.setColor(color1 or love.math.colorFromBytes(115, 115, 115))
+            love.graphics.rectangle("fill", x, y, length, thickness)
+            love.graphics.setColor(color2 or {1, 1, 1})
+            love.graphics.rectangle("fill", x, y + thickness, length, thickness)
+        elseif mode == "vertical" then
+            love.graphics.setColor(color1 or love.math.colorFromBytes(115, 115, 115))
+            love.graphics.rectangle("fill", x, y, thickness, length)
+            love.graphics.setColor(color2 or {1, 1, 1})
+            love.graphics.rectangle("fill", x + thickness, y, thickness, length)
+        end
+    end,
 }
+
+utils.copyTable = function(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[utils.copyTable(orig_key)] = utils.copyTable(orig_value)
+        end
+        setmetatable(copy, utils.copyTable(getmetatable(orig)))
+    else
+        copy = orig
+    end
+    return copy
+end
+
+utils.isTablesEqual = function(t1, t2)
+    if t1 == t2 then return true end
+    if type(t1) ~= "table" or type(t2) ~= "table" then return false end
+
+    -- Check all keys in t1
+    for k, v in pairs(t1) do
+        if not utils.isTablesEqual(v, t2[k]) then
+            return false
+        end
+    end
+    -- Check for extra keys in t2
+    for k in pairs(t2) do
+        if t1[k] == nil then
+            return false
+        end
+    end
+    return true
+end
 
 return utils

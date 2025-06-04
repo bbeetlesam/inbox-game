@@ -7,6 +7,7 @@ local cursor = require("src/cursor")
 local taskbar = require("src/taskbar")
 local apps = require("src/apps")
 local windows = require("src/windows")
+local appsManager = require("src/apps/appsManager")
 
 -- Load the game. Called once at the beginning of the game
 function love.load()
@@ -15,6 +16,7 @@ function love.load()
     Game = {utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)}
 
     shaders.init()
+    appsManager.init()
 end
 
 -- Update the game. Called every frame
@@ -29,6 +31,11 @@ end
 
 -- Draw the game. Called every frame
 function love.draw()
+    local wallpaperColor =
+        state.settings.wallpaper == "green" and const.color.DEEP_TEAL or
+        state.settings.wallpaper == "gray" and const.color.TROLLEY_GREY or
+        state.settings.wallpaper == "blue" and const.color.WALLPAPER_BLUE
+
     shaders.drawAppliedShader(function()
         love.graphics.push()
         love.graphics.translate(Game[1], Game[2])
@@ -36,7 +43,7 @@ function love.draw()
 
         love.graphics.setScissor(Game[1], Game[2], const.game.screen.WIDTH * Game[3], const.game.screen.HEIGHT * Game[4])
 
-        utils.core.setBaseBgColor(const.color.DEEP_TEAL)
+        utils.core.setBaseBgColor(wallpaperColor)
         apps.draw()
         windows.draw()
         taskbar.draw()
@@ -46,15 +53,7 @@ function love.draw()
 
         love.graphics.pop()
     end,
-    {shaders.grainyNoise, shaders.barrelDistortion}, {love.graphics.getWidth(), love.graphics.getHeight()})
-end
-
-function love.keyreleased(key, _, _)
-    if key == "escape" then
-        love.event.quit()
-    elseif key == "f11" then
-        utils.core.toggleFullscreen()
-    end
+    {shaders.grainyNoise, shaders.barrelDistortion, shaders.adjustBrightness}, {love.graphics.getWidth(), love.graphics.getHeight()})
 end
 
 function love.mousepressed(_, _, button, _, presses)
@@ -74,6 +73,11 @@ function love.mousepressed(_, _, button, _, presses)
             if item.hover.minimButton then
                 item.isClicked.minimButton = true
             end
+        end
+
+        -- Apps' content on first clicking
+        if item then
+            appsManager.firstClickedCheck(item.id)
         end
 
         -- If clicking two times on app's shortcut
@@ -103,6 +107,19 @@ function love.mousereleased(_, _, button, _, _)
                 windows.minimizeWindow(item.id)
             end
         end
+
+        -- Apps' content on released clicking
+        if item then
+            appsManager.lastClickedCheck(item.id)
+        end
+    end
+end
+
+function love.keyreleased(key, _, _)
+    if key == "escape" then
+        love.event.quit()
+    elseif key == "f11" then
+        utils.core.toggleFullscreen()
     end
 end
 
