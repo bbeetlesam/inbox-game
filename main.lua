@@ -53,7 +53,7 @@ function love.draw()
 
         love.graphics.pop()
     end,
-    {shaders.grainyNoise, shaders.barrelDistortion}, {love.graphics.getWidth(), love.graphics.getHeight()})
+    {shaders.grainyNoise, shaders.barrelDistortion, shaders.adjustBrightness}, {love.graphics.getWidth(), love.graphics.getHeight()})
 end
 
 function love.mousepressed(_, _, button, _, presses)
