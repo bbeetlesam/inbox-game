@@ -10,6 +10,7 @@ local const = {
         },
         TASKBAR_HEIGHT = 45,
         USERNAME = (utils.setLimiterString(os.getenv("USERNAME") or os.getenv("USER") or "User", 18, ".."):gsub("^%s*(%a)(.*)$", function(a, b) return a:upper() .. b:lower() end)),
+        VERSION = "v0.0.6",
     },
 
     color = {

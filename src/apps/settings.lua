@@ -13,6 +13,7 @@ local settings = {
         default = love.graphics.newFont(const.font.WIN95, 18),
         generalNumber = love.graphics.newFont(const.font.WIN95, 24),
         permissionDesc = love.graphics.newFont(const.font.WIN95, 16),
+        aboutHeader = love.graphics.newFont(const.font.WIN95, 32),
     },
     img = {},
     innerBevel = {
@@ -69,6 +70,7 @@ settings.load = function(contentSizes)
 
     settings.img.trusted = love.graphics.newImage("assets/img/trust0-0.png")
     settings.img.untrusted = love.graphics.newImage("assets/img/trust1_restrict-0.png")
+    settings.img.computer = love.graphics.newImage("assets/img/notepad_file-2.png")
 
     -- Refresh general section's buttons positions
     for i, section in ipairs({"volume", "brightness"}) do
@@ -160,6 +162,47 @@ settings.drawPermissionsSection = function()
     end
 end
 
+settings.drawAboutSection = function()
+    local x, y = settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2), settings.innerBevel.startY + 15 + 115 + 15
+    local headertxt = "System Version: 9X Edition\nRegistered User: " .. const.game.USERNAME .. "\nLicense Status: Valid"
+    local systemtxt = "Game version: " .. const.game.VERSION .. "\nProduct key: " .. "5AM3-F8QK" .. "\nSystem type: 32-bit operating system\n" ..
+                      "Installation date: " .. "20XX/06/24" .. "\nDisk usage: 24.6 MB/32.0 MB used"
+    local legaltxt = "This copy is licensed for personal use only.\nUnauthorized access is strictly prohibited.\nDo not attempt to uninstall."
+
+    love.graphics.setColor(const.color.WHITE)
+    utils.drawImage(settings.img.computer, settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2), settings.innerBevel.startY + 15, 100)
+    love.graphics.setColor(const.color.BLACK)
+    love.graphics.setFont(settings.font.aboutHeader)
+    love.graphics.print("InboxOS", settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2) + 110, settings.innerBevel.startY + 15 + 3)
+    love.graphics.setFont(settings.font.default)
+    love.graphics.print(headertxt, settings.innerBevel.startX + (settings.innerBevel.w/2 - 550/2) + 110, settings.innerBevel.startY + 15 + 45)
+    utils.drawSectionDivider("horizontal", x, y - 15, 550, 2)
+
+    love.graphics.setColor(const.color.BLACK)
+    love.graphics.print("Manufactured by:", x, y)
+    love.graphics.print("Manufactured by:", x + 1, y)
+    love.graphics.setFont(settings.font.permissionDesc)
+    love.graphics.print("bbeetlesam\nInboxTech ", x, y + 20)
+
+    love.graphics.setFont(settings.font.default)
+    love.graphics.print("System Information:", x, y + 60)
+    love.graphics.print("System Information:", x + 1, y + 60)
+    love.graphics.setFont(settings.font.permissionDesc)
+    love.graphics.print(systemtxt, x, y + 60 + 20)
+
+    love.graphics.setFont(settings.font.default)
+    love.graphics.print("Legal Notice:", x, y + 165)
+    love.graphics.print("Legal Notice:", x + 1, y + 165)
+    love.graphics.setFont(settings.font.permissionDesc)
+    love.graphics.printf(legaltxt, x, y + 165 + 20, 300, "left")
+
+    love.graphics.setFont(settings.font.default)
+    love.graphics.print("Support Contact: ", x + 1, y + 240)
+    love.graphics.print("Support Contact:", x, y + 240)
+    love.graphics.setFont(settings.font.permissionDesc)
+    love.graphics.print("support@inboxtech.co\nbbeetlesam1729@gmail.com", x, y + 240 + 20)
+end
+
 settings.draw = function()
     -- inner rectangle
     utils.bevelRect(settings.innerBevel.startX, settings.innerBevel.startY, settings.innerBevel.w, settings.innerBevel.h,
@@ -201,7 +244,7 @@ settings.draw = function()
     elseif settings.content.selectedSection == "permissions" then
         settings.drawPermissionsSection()
     elseif settings.content.selectedSection == "about" then
-        -- settings.drawAboutSection()
+        settings.drawAboutSection()
     end
 end
 
