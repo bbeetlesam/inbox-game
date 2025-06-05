@@ -221,7 +221,7 @@ function window.update(mouseCursor)
         if item then
             -- Clamp to screen
             local clampedX = math.max(0, math.min(newX, const.game.screen.WIDTH - item.size.x))
-            local clampedY = math.max(0, math.min(newY, const.game.screen.HEIGHT - item.size.y))
+            local clampedY = math.max(0, math.min(newY, const.game.screen.HEIGHT - item.size.y - const.game.TASKBAR_HEIGHT))
 
             -- If clamped, update drag offset so window follows cursor smoothly
             if clampedX ~= newX then
