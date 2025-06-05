@@ -2,6 +2,8 @@
 
 > _Don’t ever let your heart empty — **devils** might try to fill it._
 
+![game-image](https://github.com/user-attachments/assets/3ae5c2c7-0f03-44ff-ad30-3e917193d219)
+
 _Inbox_ is a short narrative-driven psychological horror game set entirely within a simulated **Windows 98**-like desktop. You play as a man stuck in a decaying routine — meaningless work, a distant mother, and a life lived through an old CRT screen. He's alone, ignored, and quietly losing his grip.
 
 Then one day, a new message appears on **NetMatch**, a popular dating app at the time. It's from a _**woman**_ — kind, curious, and oddly consistent. As their chats grow deeper, his world begins to change. Or maybe it's unraveling. You explore the system: reply to messages, check old files, tweak settings. But with every interaction, something feels increasingly... off.
