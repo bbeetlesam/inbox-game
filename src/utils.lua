@@ -146,6 +146,26 @@ local utils = {
             love.graphics.rectangle("fill", x + thickness, y, thickness, length)
         end
     end,
+
+    tween = function(from, to, duration, easeFunc, onUpdate, onComplete)
+        local elapsed = 0
+        local finished = false
+        local value = from
+        easeFunc = easeFunc or function(a, b, t) return a + (b - a) * t end
+
+        return function(dt)
+            if finished then return value, elapsed end
+            elapsed = math.min(elapsed + dt, duration)
+            local t = math.min(elapsed / duration, 1)
+            value = easeFunc(from, to, t)
+            if onUpdate then onUpdate(value, elapsed) end
+            if t >= 1 and not finished then
+                finished = true
+                if onComplete then onComplete() end
+            end
+            return value, elapsed
+        end
+    end
 }
 
 utils.copyTable = function(orig)
