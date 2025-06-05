@@ -8,6 +8,7 @@ local taskbar = require("src/taskbar")
 local apps = require("src/apps")
 local windows = require("src/windows")
 local appsManager = require("src/apps/appsManager")
+local sceneManager = require("src/scenes/sceneManager")
 
 -- Load the game. Called once at the beginning of the game
 function love.load()
@@ -17,16 +18,20 @@ function love.load()
 
     shaders.init()
     appsManager.init()
+    sceneManager.setScene("none")
 end
 
 -- Update the game. Called every frame
 function love.update(dt)
     state.update()
     shaders.update()
-    cursor.update()
-    apps.update(cursor)
-    taskbar.update(cursor)
-    windows.update(cursor)
+    sceneManager.update(dt)
+    if not state.game.isStartingUp then
+        cursor.update()
+        apps.update(cursor)
+        taskbar.update(cursor)
+        windows.update(cursor)
+    end
 end
 
 -- Draw the game. Called every frame
@@ -48,6 +53,8 @@ function love.draw()
         windows.draw()
         taskbar.draw()
         cursor.draw()
+
+        sceneManager.draw()
 
         love.graphics.setScissor()
 
