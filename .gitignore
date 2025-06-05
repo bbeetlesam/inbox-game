@@ -1,6 +1,7 @@
 # Folders
-/.vscode
-/bin
+.vscode/
+bin/
 
 # Misc
-/garage
+garage/
+scripts/
