@@ -24,7 +24,11 @@ local state = {
             camera = false,
             microphone = false,
         },
-    }
+    },
+    game = {
+        isStartingUp = false,
+        isShuttingDown = false,
+    },
 }
 
 state.update = function()
