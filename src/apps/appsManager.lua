@@ -1,11 +1,13 @@
 local const = require("src/const")
 local settings = require("src/apps/settings")
+local file = require("src/apps/file")
 
 local appsManager = {}
 
 appsManager.init = function()
     local window = require("src/windows")
     settings.load(window.checkItemId("settings", "content"))
+    file.load(window.checkItemId("file", "content"))
 end
 
 -- Reset all apps' states to default when the app is closed
@@ -22,6 +24,8 @@ appsManager.update = function(appId, cursor, baseCoordinate, windowAttributes)
 
     if appId == "settings" then
         settings.update(cursor, {offsetX, offsetY})
+    elseif appId == "file" then
+        file.update()
     end
 end
 
@@ -37,6 +41,8 @@ appsManager.draw = function(appId, baseCoordinate, windowAttributes)
     love.graphics.setColor(const.color.WHITE)
     if appId == "settings" then
         settings.draw()
+    elseif appId == "file" then
+        file.draw()
     end
 
     love.graphics.pop()
