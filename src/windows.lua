@@ -32,7 +32,7 @@ local window = {
 function window.checkItemId(itemId, attr)
     local mail = {x = 803, y = 703}
     local date = {x = 803, y = 703}
-    local file = {x = 803, y = 703}
+    local file = {x = 723, y = 583}
     local settings = {x = 603, y = 643}
 
     if itemId == "mail" then
@@ -40,7 +40,7 @@ function window.checkItemId(itemId, attr)
     elseif itemId == "date" then
         return (attr == "label" and "NetMatch") or (attr == "size" and {date.x, date.y}) or (attr == "content" and {date.x - 3*2 - 2, date.y - window.header.height - 3})
     elseif itemId == "file" then
-        return (attr == "label" and "File") or (attr == "size" and {file.x, file.y}) or (attr == "content" and {file.x - 3*2 - 2, file.y - window.header.height - 3})
+        return (attr == "label" and "File") or (attr == "size" and {file.x, file.y}) or (attr == "content" and {file.x - 3*2 - 2, file.y - window.header.height - 0})
     elseif itemId == "settings" then
         return (attr == "label" and "Settings") or (attr == "size" and {settings.x, settings.y}) or (attr == "content" and {settings.x - 3*2 - 2, settings.y - window.header.height - 3})
     end
