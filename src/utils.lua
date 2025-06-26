@@ -165,7 +165,33 @@ local utils = {
             end
             return value, elapsed
         end
-    end
+    end,
+
+    dashedLine = function(x1, y1, x2, y2, dashLength, gapLength, lineWidth, color)
+        dashLength = dashLength or 3
+        gapLength = gapLength or 1
+        lineWidth = lineWidth or 1
+        color = color or {0, 0, 0}
+
+        local dx, dy = x2 - x1, y2 - y1
+        local length = math.sqrt(dx * dx + dy * dy)
+        local angle = math.atan2(dy, dx)
+        local progress = 0
+
+        while progress < length do
+            local segStart = progress
+            local segEnd = math.min(progress + dashLength, length)
+            local sx = x1 + math.cos(angle) * segStart
+            local sy = y1 + math.sin(angle) * segStart
+            local ex = x1 + math.cos(angle) * segEnd
+            local ey = y1 + math.sin(angle) * segEnd
+            love.graphics.setColor(color)
+            love.graphics.setLineWidth(lineWidth)
+            love.graphics.line(sx, sy, ex, ey)
+            progress = progress + dashLength + gapLength
+        end
+        love.graphics.setColor(1, 1, 1)
+    end,
 }
 
 utils.copyTable = function(orig)
