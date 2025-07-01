@@ -17,6 +17,7 @@ local file = {
         folder = love.graphics.newImage("assets/img/directory_closed-2.png"),
         txt = love.graphics.newImage("assets/img/notepad_file-2.png"),
     },
+    folderButtons = {},
 }
 
 local function traverseFolders(folder, callback, depth)
@@ -29,14 +30,28 @@ local function traverseFolders(folder, callback, depth)
     end
 end
 
+local function countVisibleChildren(folder)
+    if not folder.expanded then
+        return 0
+    end
+    local count = 0
+    if folder.children then
+        for _, entry in ipairs(folder.children) do
+            count = count + 1
+            if entry.type == "folder" then
+                count = count + countVisibleChildren(entry)
+            end
+        end
+    end
+    return count
+end
+
 file.load = function(contentSizes)
     file.content.width, file.content.height = contentSizes[1], contentSizes[2]
 end
 
-file.update = function()
-end
-
 file.draw = function()
+    file.folderButtons = {}
     local x, y = 5, 0
 
     love.graphics.setColor(const.color.BLACK)
@@ -54,7 +69,7 @@ file.draw = function()
 
     -- left panel elements
     local startX, startY = x + 6 + 28, y + 35 + 5 + 38 + 5 + 30
-    local lineHeight = 22
+    local heightGap = 22
     local currentY = startY
 
     love.graphics.setColor(const.color.WHITE)
@@ -62,7 +77,7 @@ file.draw = function()
     love.graphics.setFont(file.font.body)
     love.graphics.setColor(const.color.BLACK)
     love.graphics.print("Desktop", x + 6 + 28, y + 35 + 5 + 38 + 5 + 5 + 4)
-    utils.dashedLine(x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 4, x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 4 + 100, 3, 3, 1, utils.setRGB(145, 145, 145))
+    utils.dashedLine(x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 16, x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 16 + 22, 3, 3, 1, utils.setRGB(145, 145, 145))
     -- callback for traverse folders
     local function drawCallback(entry, depth)
         local typeImage = (entry.type == "folder" and file.image.folder) or
@@ -81,18 +96,44 @@ file.draw = function()
         -- Draw an expand/collapse indicator for folders
         if entry.type == "folder" then
             local indicator = entry.expanded and "-" or "+"
-            utils.dashedLine(iconX - 19, currentY + 7, iconX - 19 + 20, currentY + 7, 3, 3, 1, utils.setRGB(145, 145, 145))
-            love.graphics.setColor({0.2, 0.2, 0.2})
-            utils.bevelRect(iconX - 25, currentY - 1, 15, 15, 2, utils.setRGB(246, 244, 241), utils.setRGB(145, 145, 145), utils.setRGB(145, 145, 145))
+            local btnX, btnY, btnW, btnH = iconX - 25, currentY - 1, 15, 15
+
+            utils.dashedLine(iconX - 19, currentY + 8, iconX - 19 + 20, currentY + 8, 3, 3, 1, utils.setRGB(145, 145, 145))
+            utils.dashedLine(iconX - 19, currentY + 8, iconX - 19, currentY + 8 + heightGap*(countVisibleChildren(folders[1])) + 1, 3, 3, 1, utils.setRGB(145, 145, 145))
+            utils.bevelRect(btnX, btnY, btnW, btnH, 2, utils.setRGB(246, 244, 241), utils.setRGB(145, 145, 145), utils.setRGB(145, 145, 145))
             love.graphics.setColor(const.color.BLACK)
             love.graphics.print(indicator, iconX - 22, currentY - 4)
+
+            table.insert(file.folderButtons, {
+                x = btnX,
+                y = btnY,
+                w = btnW,
+                h = btnH,
+                isHovered = false,
+                entry = entry
+            })
         end
 
-        currentY = currentY + lineHeight
+        currentY = currentY + heightGap
     end
     traverseFolders(folders, drawCallback)
 
     -- right panel
+end
+
+file.update = function(mouseCursor, offsets)
+    local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
+    for _, btn in ipairs(file.folderButtons) do
+        btn.isHovered = utils.rectButton(cursor, btn.x, btn.y, btn.w, btn.h)
+    end
+end
+
+file.firstClickedCheck = function()
+    for _, btn in ipairs(file.folderButtons) do
+        if btn.isHovered then
+            btn.entry.expanded = not btn.entry.expanded
+        end
+    end
 end
 
 return file
