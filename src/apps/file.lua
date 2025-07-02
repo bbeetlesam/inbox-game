@@ -17,7 +17,6 @@ local file = {
         folder = love.graphics.newImage("assets/img/directory_closed-2.png"),
         txt = love.graphics.newImage("assets/img/notepad_file-2.png"),
     },
-    folderButtons = {},
 }
 
 local function traverseFolders(folder, callback, depth)
@@ -122,15 +121,14 @@ file.draw = function()
 end
 
 file.update = function(mouseCursor, offsets)
-    local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
-    for _, btn in ipairs(file.folderButtons) do
-        btn.isHovered = utils.rectButton(cursor, btn.x, btn.y, btn.w, btn.h)
-    end
 end
 
-file.firstClickedCheck = function()
+file.firstClickedCheck = function(mouseCursor, offsets)
+    local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
+
+    -- check if folder expand's buttons is clicked
     for _, btn in ipairs(file.folderButtons) do
-        if btn.isHovered then
+        if utils.rectButton(cursor, btn.x, btn.y, btn.w, btn.h) then
             btn.entry.expanded = not btn.entry.expanded
         end
     end
