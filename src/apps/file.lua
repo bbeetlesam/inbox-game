@@ -17,6 +17,8 @@ local file = {
         folder = love.graphics.newImage("assets/img/directory_closed-2.png"),
         txt = love.graphics.newImage("assets/img/notepad_file-2.png"),
     },
+    expandFolderButtons = {},
+    nameFolderButtons = {},
 }
 
 local function traverseFolders(folder, callback, depth)
@@ -50,7 +52,8 @@ file.load = function(contentSizes)
 end
 
 file.draw = function()
-    file.folderButtons = {}
+    file.expandFolderButtons = {}
+    file.nameFolderButtons = {}
     local x, y = 5, 0
 
     love.graphics.setColor(const.color.BLACK)
@@ -62,9 +65,14 @@ file.draw = function()
     love.graphics.print("Help", x + 183, y + 8)
     utils.drawSectionDivider("horizontal", x - 1, y + 35, file.content.width - 6, 2)
 
-    utils.bevelRect(x, y + 35 + 8, file.content.width - 5, 35, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- upper panel
-    utils.bevelRect(x, y + 35 + 5 + 38 + 2, 270, file.content.height - 85, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- left panel
-    utils.bevelRect(x + 270 + 3, y + 35 + 5 + 38 + 2, file.content.width - 270 - 9, file.content.height - 85, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- right panel
+    utils.bevelRect(x + 70, y + 35 + 8, file.content.width - 5 - 70, 35, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- upper panel
+    utils.bevelRect(x, y + 35 + 5 + 38 + 2, 270, file.content.height - 85 - 37, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- left panel
+    utils.bevelRect(x + 270 + 3, y + 35 + 5 + 38 + 2, file.content.width - 270 - 9, file.content.height - 85 - 37, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- right panel
+    utils.bevelRect(x, y + 35 + 5 + 38 + 2 + file.content.height - 85 - 35, 200, 35, 3, const.color.SILVER_TASKBAR, const.color.WHITE, const.color.SILVER_BEVEL) -- lower left panel
+    utils.bevelRect(x + 203, y + 35 + 5 + 38 + 2 + file.content.height - 85 - 35, file.content.width - 208, 35, 3, const.color.SILVER_TASKBAR, const.color.WHITE, const.color.SILVER_BEVEL) -- lower right panel
+
+    love.graphics.setColor(const.color.BLACK)
+    love.graphics.print("Address", x, y + 35 + 8 + 7)
 
     -- left panel elements
     local startX, startY = x + 6 + 28, y + 35 + 5 + 38 + 5 + 27
@@ -88,8 +96,18 @@ file.draw = function()
         utils.drawImage(typeImage, iconX, iconY, file.imageSize)
 
         -- Draw folder/file name
-        love.graphics.setColor(const.color.BLACK)
-        love.graphics.print(entry.name, iconX + file.imageSize + 5, currentY)
+        local brdColor = entry.selected and const.color.NAVY_BLUE or nil
+        local nameColor = entry.selected and const.color.WHITE or const.color.BLACK
+        love.graphics.setColor(nameColor)
+        local brdX, brdY, brdW, brdH = utils.printBorderText(entry.name, iconX + file.imageSize + 5, currentY, brdColor, {1, 0}, false)
+
+        table.insert(file.nameFolderButtons, {
+            x = brdX,
+            y = brdY,
+            w = brdW,
+            h = brdH,
+            entry = entry
+        })
 
         -- Draw an expand/collapse indicator for folders
         if entry.type == "folder" then
@@ -97,17 +115,16 @@ file.draw = function()
             local btnX, btnY, btnW, btnH = iconX - 25, currentY - 1, 15, 15
 
             utils.dashedLine(iconX - 19, currentY + 8, iconX - 19 + 20, currentY + 8, 3, 3, 1, utils.setRGB(145, 145, 145))
-            utils.dashedLine(iconX - 19, currentY + 8, iconX - 19, currentY + 8 + heightGap*(countVisibleChildren(folders[1])) + 1, 3, 3, 1, utils.setRGB(145, 145, 145))
+            -- utils.dashedLine(iconX - 19, currentY + 8, iconX - 19, currentY + 8 + heightGap*(countVisibleChildren(folders[1])) + 1, 3, 3, 1, utils.setRGB(145, 145, 145))
             utils.bevelRect(btnX, btnY, btnW, btnH, 2, utils.setRGB(246, 244, 241), utils.setRGB(145, 145, 145), utils.setRGB(145, 145, 145))
             love.graphics.setColor(const.color.BLACK)
             love.graphics.print(indicator, iconX - 22, currentY - 5)
 
-            table.insert(file.folderButtons, {
+            table.insert(file.expandFolderButtons, {
                 x = btnX,
                 y = btnY,
                 w = btnW,
                 h = btnH,
-                isHovered = false,
                 entry = entry
             })
         end
@@ -126,9 +143,39 @@ file.firstClickedCheck = function(mouseCursor, offsets)
     local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
 
     -- check if folder expand's buttons is clicked
-    for _, btn in ipairs(file.folderButtons) do
+    for _, btn in ipairs(file.expandFolderButtons) do
         if utils.rectButton(cursor, btn.x, btn.y, btn.w, btn.h) then
             btn.entry.expanded = not btn.entry.expanded
+        end
+    end
+
+    -- check if folder's label is clicked
+    for _, brd in ipairs(file.nameFolderButtons) do
+        brd.entry.selected = false
+        if utils.rectButton(cursor, brd.x, brd.y, brd.w, brd.h) then
+            for _, other in ipairs(file.nameFolderButtons) do
+                other.entry.selected = false
+            end
+
+            brd.entry.selected = true
+            break
+        end
+    end
+end
+
+file.doubleFirstClickedCheck = function(mouseCursor, offsets)
+    local cursor = {x = mouseCursor.x  - offsets[1], y = mouseCursor.y - offsets[2]}
+
+    -- check if folder's label is clicked twice (open the folder/file's content to right panel)
+    for _, brd in ipairs(file.nameFolderButtons) do
+        if utils.rectButton(cursor, brd.x, brd.y, brd.w, brd.h) then
+            if brd.entry.type == "folder" then
+                brd.entry.expanded = not brd.entry.expanded
+            else
+                if brd.entry.type == "file-text" then
+                    
+                end
+            end
         end
     end
 end
