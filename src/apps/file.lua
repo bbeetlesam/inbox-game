@@ -8,7 +8,7 @@ local file = {
     },
     font = {
         header = love.graphics.newFont(const.font.WIN95, 20),
-        body = love.graphics.newFont(const.font.WIN95, 18),
+        body = love.graphics.newFont(const.font.WIN95, 20),
     },
     imageSize = 16 * 1.3,
     image = {
@@ -62,21 +62,20 @@ file.draw = function()
     love.graphics.print("Help", x + 183, y + 8)
     utils.drawSectionDivider("horizontal", x - 1, y + 35, file.content.width - 6, 2)
 
-    utils.bevelRect(x, y + 35 + 8, file.content.width - 5, 38, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- upper panel
-    utils.bevelRect(x, y + 35 + 5 + 38 + 5, 270, file.content.height - 88, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- left panel
-    utils.bevelRect(x + 270 + 3, y + 35 + 5 + 38 + 5, file.content.width - 270 - 9, file.content.height - 88, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- right panel
+    utils.bevelRect(x, y + 35 + 8, file.content.width - 5, 35, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- upper panel
+    utils.bevelRect(x, y + 35 + 5 + 38 + 2, 270, file.content.height - 85, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- left panel
+    utils.bevelRect(x + 270 + 3, y + 35 + 5 + 38 + 2, file.content.width - 270 - 9, file.content.height - 85, 3, utils.setRGB(246, 244, 241), utils.setRGB(170, 170, 170), const.color.SILVER_BEVEL) -- right panel
 
     -- left panel elements
-    local startX, startY = x + 6 + 28, y + 35 + 5 + 38 + 5 + 30
+    local startX, startY = x + 6 + 28, y + 35 + 5 + 38 + 5 + 27
     local heightGap = 22
     local currentY = startY
 
     love.graphics.setColor(const.color.WHITE)
-    utils.drawImage(file.image.desktop, x + 6, y + 35 + 5 + 38 + 5 + 5, file.imageSize)
+    utils.drawImage(file.image.desktop, x + 6, y + 35 + 5 + 38 + 5 + 2, file.imageSize)
     love.graphics.setFont(file.font.body)
     love.graphics.setColor(const.color.BLACK)
-    love.graphics.print("Desktop", x + 6 + 28, y + 35 + 5 + 38 + 5 + 5 + 4)
-    utils.dashedLine(x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 16, x + 16, y + 35 + 5 + 38 + 5 + 5 + 28 - 16 + 22, 3, 3, 1, utils.setRGB(145, 145, 145))
+    love.graphics.print("Desktop", x + 6 + 28, y + 35 + 5 + 38 + 5 + 5 + 1)
     -- callback for traverse folders
     local function drawCallback(entry, depth)
         local typeImage = (entry.type == "folder" and file.image.folder) or
@@ -101,7 +100,7 @@ file.draw = function()
             utils.dashedLine(iconX - 19, currentY + 8, iconX - 19, currentY + 8 + heightGap*(countVisibleChildren(folders[1])) + 1, 3, 3, 1, utils.setRGB(145, 145, 145))
             utils.bevelRect(btnX, btnY, btnW, btnH, 2, utils.setRGB(246, 244, 241), utils.setRGB(145, 145, 145), utils.setRGB(145, 145, 145))
             love.graphics.setColor(const.color.BLACK)
-            love.graphics.print(indicator, iconX - 22, currentY - 4)
+            love.graphics.print(indicator, iconX - 22, currentY - 5)
 
             table.insert(file.folderButtons, {
                 x = btnX,
