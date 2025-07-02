@@ -71,6 +71,39 @@ local function clearAllSelected(folder)
     end
 end
 
+-- get the string format of selected's path (starting from root\)
+local function findSelectedPath(folder, pathSoFar)
+    pathSoFar = pathSoFar or {}
+    for _, entry in ipairs(folder) do
+        table.insert(pathSoFar, entry.name)
+        if entry.selected then
+            return table.concat(pathSoFar, "\\")
+        end
+        if entry.type == "folder" and entry.children then
+            local found = findSelectedPath(entry.children, pathSoFar)
+            if found then return found end
+        end
+        table.remove(pathSoFar) -- backtrack
+    end
+    return nil
+end
+
+-- count chldren amount of an entry (if a non-folder is selected, it'll returns 1)
+local function countAllChildren(entry)
+    if entry.type == "folder" and entry.children then
+        local count = 0
+        for _, child in ipairs(entry.children) do
+            count = count + 1 -- count the child itself
+            if child.type == "folder" and child.children then
+                count = count + countAllChildren(child)
+            end
+        end
+        return count
+    else
+        return 1
+    end
+end
+
 file.load = function(contentSizes)
     file.content.width, file.content.height = contentSizes[1], contentSizes[2]
 end
@@ -168,6 +201,18 @@ file.draw = function()
             love.graphics.printf("this is just fucking ass " .. selectedContent.name .. " folder,\nnormal as ever", xr, yr, wr, "left")
         end
     end
+
+    -- upper panel
+    local xu, yu = x + 70, y + 35 + 8
+    local selectedPath = "root\\" .. (selectedContent and findSelectedPath(folders) or "")
+
+    love.graphics.print(selectedPath, xu + 8, yu + 8)
+
+    -- lower left panel
+    local xll, yll = x, y + 35 + 5 + 38 + 2 + file.content.height - 85 - 35
+    local childrenAmount = (selectedContent and countAllChildren(selectedContent) or "0") .. " object(s)"
+
+    love.graphics.print(childrenAmount, xll + 8, yll + 8)
 end
 
 file.update = function(mouseCursor, offsets)
