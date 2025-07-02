@@ -13,9 +13,9 @@ return {
                 expanded = true,
                 selected = false,
                 children = {
-                    { name = "about.txt", type = "file-text", size = 21,
-                        content = "This game is shit, and you should'nt play it seriously.\nAnyway, I felt like the biggest asshole when I killed your rock 'n roll.\nThanks for playing tho." },
-                    { name = "lucy.txt", type = "file-text", size = 21,
+                    { name = "about.txt", type = "file-text", size = 21, isOpen = false,
+                        content = "This game is shit, and you shouldn't play it seriously.\nAnyway, I felt like the biggest asshole when I killed your rock 'n roll.\nThanks for playing tho." },
+                    { name = "lucy.txt", type = "file-text", size = 21, isOpen = false,
                         content = "Picture yourself in a boat on a river\nWith tangerine trees and marmalade skies\nSomebody calls you, you answer quite slowly\nA girl with kaleidoscope eyes" },
                 }
             },

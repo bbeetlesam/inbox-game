@@ -47,6 +47,30 @@ local function countVisibleChildren(folder)
     return count
 end
 
+-- used to find selected == true content to be shown in right panel
+local function findSelectedEntry(folder)
+    for _, entry in ipairs(folder) do
+        if entry.selected then
+            return entry
+        end
+        if entry.type == "folder" and entry.children then
+            local found = findSelectedEntry(entry.children)
+            if found then return found end
+        end
+    end
+    return nil
+end
+
+-- clear all folders to selected = false (tho there's only one selected one at a time)
+local function clearAllSelected(folder)
+    for _, entry in ipairs(folder) do
+        entry.selected = false
+        if entry.type == "folder" and entry.children then
+            clearAllSelected(entry.children)
+        end
+    end
+end
+
 file.load = function(contentSizes)
     file.content.width, file.content.height = contentSizes[1], contentSizes[2]
 end
@@ -134,6 +158,16 @@ file.draw = function()
     traverseFolders(folders, drawCallback)
 
     -- right panel
+    local xr, yr, wr = x + 270 + 3 + 6, y + 35 + 5 + 38 + 2 + 6, file.content.width - 270 - 9 - 12
+    local selectedContent = findSelectedEntry(folders)
+
+    if selectedContent then
+        if selectedContent.type == "file-text" then
+            love.graphics.printf(selectedContent.content, xr, yr, wr, "left")
+        elseif selectedContent.type == "folder" then
+            love.graphics.printf("this is just fucking ass " .. selectedContent.name .. " folder,\nnormal as ever", xr, yr, wr, "left")
+        end
+    end
 end
 
 file.update = function(mouseCursor, offsets)
@@ -146,12 +180,12 @@ file.firstClickedCheck = function(mouseCursor, offsets)
     for _, btn in ipairs(file.expandFolderButtons) do
         if utils.rectButton(cursor, btn.x, btn.y, btn.w, btn.h) then
             btn.entry.expanded = not btn.entry.expanded
+            clearAllSelected(folders)
         end
     end
 
-    -- check if folder's label is clicked
+    -- check if folder/file's label is clicked
     for _, brd in ipairs(file.nameFolderButtons) do
-        brd.entry.selected = false
         if utils.rectButton(cursor, brd.x, brd.y, brd.w, brd.h) then
             for _, other in ipairs(file.nameFolderButtons) do
                 other.entry.selected = false
@@ -172,8 +206,8 @@ file.doubleFirstClickedCheck = function(mouseCursor, offsets)
             if brd.entry.type == "folder" then
                 brd.entry.expanded = not brd.entry.expanded
             else
-                if brd.entry.type == "file-text" then
-                    
+                if brd.entry.type == "file-image" then
+                elseif brd.entry.type == "file-video" then
                 end
             end
         end
