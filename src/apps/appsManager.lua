@@ -25,7 +25,7 @@ appsManager.update = function(appId, cursor, baseCoordinate, windowAttributes)
     if appId == "settings" then
         settings.update(cursor, {offsetX, offsetY})
     elseif appId == "file" then
-        file.update()
+        file.update(cursor, {offsetX, offsetY})
     end
 end
 
@@ -48,9 +48,15 @@ appsManager.draw = function(appId, baseCoordinate, windowAttributes)
     love.graphics.pop()
 end
 
-appsManager.firstClickedCheck = function(appId)
+appsManager.firstClickedCheck = function(appId, cursor, baseCoordinate, windowAttributes)
+    local windowHeaderHeight, windowOutlineSize = windowAttributes[1], windowAttributes[2]
+    local offsetX = baseCoordinate[1] + windowOutlineSize
+    local offsetY = baseCoordinate[2] + windowOutlineSize + windowHeaderHeight - 3*2
+
     if appId == "settings" then
         settings.firstClickedCheck()
+    elseif appId == "file" then
+        file.firstClickedCheck(cursor, {offsetX, offsetY})
     end
 end
 

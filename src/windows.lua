@@ -139,7 +139,7 @@ function window.closeWindow(itemId)
     end
 end
 
-function window.clickedCheck(mousecCursor)
+function window.clickedCheck(mouseCursor)
     local taskbar = require("src/taskbar")
     for i = #window.items, 1, -1 do -- from topmost to bottom
         local item = window.items[i]
@@ -148,20 +148,25 @@ function window.clickedCheck(mousecCursor)
 
         -- Check if the mouse is inside header area (click to drag)
         if item.hover.header then
-            if mousecCursor.x >= headerX and mousecCursor.x <= headerX + headerW and mousecCursor.y >= headerY and mousecCursor.y <= headerY + headerH then
+            if mouseCursor.x >= headerX and mouseCursor.x <= headerX + headerW and mouseCursor.y >= headerY and mouseCursor.y <= headerY + headerH then
                 window.drag.target = item
-                window.drag.offset.x = mousecCursor.x - item.x
-                window.drag.offset.y = mousecCursor.y - item.y
+                window.drag.offset.x = mouseCursor.x - item.x
+                window.drag.offset.y = mouseCursor.y - item.y
             end
         end
 
         -- Check if mouse is inside window area (click to focus)
-        if mousecCursor.x >= winX and mousecCursor.x <= winX + winW and mousecCursor.y >= winY and mousecCursor.y <= winY + winH then
+        if mouseCursor.x >= winX and mouseCursor.x <= winX + winW and mouseCursor.y >= winY and mouseCursor.y <= winY + winH then
             -- Reorder window to last (top-most)
             table.remove(window.items, i)
             table.insert(window.items, item)
             taskbar.focusItem(item.id, true)
             window.clicked = true
+
+            -- First click check from appsManager (store it in here)
+            local item2 = window.items[#window.items]
+            appsManager.firstClickedCheck(item2.id, mouseCursor, {item2.x, item2.y}, {window.header.height, item2.size.outline})
+
             return
         else
             taskbar.focusItem(item.id, false)
