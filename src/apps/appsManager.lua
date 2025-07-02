@@ -66,4 +66,15 @@ appsManager.lastClickedCheck = function(appId)
     end
 end
 
+appsManager.doubleFirstClickedChecck = function(appId, cursor, baseCoordinate, windowAttributes)
+    local windowHeaderHeight, windowOutlineSize = windowAttributes[1], windowAttributes[2]
+    local offsetX = baseCoordinate[1] + windowOutlineSize
+    local offsetY = baseCoordinate[2] + windowOutlineSize + windowHeaderHeight - 3*2
+
+    if appId == "settings" then
+    elseif appId == "file" then
+        file.doubleFirstClickedCheck(cursor, {offsetX, offsetY})
+    end
+end
+
 return appsManager

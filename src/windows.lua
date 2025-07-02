@@ -175,6 +175,16 @@ function window.clickedCheck(mouseCursor)
     end
 end
 
+function window.doubleClickedCheck(mouseCursor)
+    local item = window.items[#window.items]
+    if item then
+        local winX, winY, winW, winH = item.x, item.y, item.size.x, item.size.y
+        if utils.rectButton(mouseCursor, winX, winY, winW, winH) then
+            appsManager.doubleFirstClickedChecck(item.id, mouseCursor, {item.x, item.y}, {window.header.height, item.size.outline})
+        end
+    end
+end
+
 function window.draw()
     for _, item in ipairs(window.items) do
         local windowLabel = window.checkItemId(item.id, "label")
