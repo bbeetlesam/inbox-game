@@ -62,6 +62,7 @@ local utils = {
         local textWidth = font:getWidth(text)
         local textHeight = font:getHeight()
         local prevColor = {love.graphics.getColor()}
+        borderOffset = borderOffset or {0, 0}
 
         if useBorder then
             love.graphics.setColor(borderColor or {1, 1, 1})
@@ -71,6 +72,25 @@ local utils = {
 
         love.graphics.setColor(prevColor)
         love.graphics.print(text, centerX - textWidth / 2, centerY - textHeight / 2)
+    end,
+
+    printBorderText = function(text, x, y, borderColor, borderOffset, outlineMode)
+        local font = love.graphics.getFont()
+        local textWidth = font:getWidth(text)
+        local textHeight = font:getHeight()
+        local prevColor = {love.graphics.getColor()}
+        local mode = outlineMode and "line" or "fill"
+        borderOffset = borderOffset or {0, 0}
+
+        love.graphics.setColor(borderColor or {1, 1, 1, 0})
+        love.graphics.rectangle(mode, x - borderOffset[1], y - borderOffset[2],
+        textWidth + borderOffset[1] * 2, textHeight + borderOffset[2] * 2)
+
+        love.graphics.setColor(prevColor)
+        love.graphics.print(text, x, y)
+
+        -- return border attributes (might be needed later, if anything)
+        return x - borderOffset[1], y - borderOffset[2], textWidth + borderOffset[1] * 2, textHeight + borderOffset[2] * 2
     end,
 
     drawImage = function(image, x, y, size)
