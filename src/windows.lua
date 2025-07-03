@@ -32,7 +32,7 @@ local window = {
 function window.checkItemId(itemId, attr)
     local mail = {x = 803, y = 703}
     local date = {x = 803, y = 703}
-    local file = {x = 803, y = 703}
+    local file = {x = 723, y = 583}
     local settings = {x = 603, y = 643}
 
     if itemId == "mail" then
@@ -40,7 +40,7 @@ function window.checkItemId(itemId, attr)
     elseif itemId == "date" then
         return (attr == "label" and "NetMatch") or (attr == "size" and {date.x, date.y}) or (attr == "content" and {date.x - 3*2 - 2, date.y - window.header.height - 3})
     elseif itemId == "file" then
-        return (attr == "label" and "File") or (attr == "size" and {file.x, file.y}) or (attr == "content" and {file.x - 3*2 - 2, file.y - window.header.height - 3})
+        return (attr == "label" and "File") or (attr == "size" and {file.x, file.y}) or (attr == "content" and {file.x - 3*2 - 2, file.y - window.header.height - 0})
     elseif itemId == "settings" then
         return (attr == "label" and "Settings") or (attr == "size" and {settings.x, settings.y}) or (attr == "content" and {settings.x - 3*2 - 2, settings.y - window.header.height - 3})
     end
@@ -139,7 +139,7 @@ function window.closeWindow(itemId)
     end
 end
 
-function window.clickedCheck(mousecCursor)
+function window.clickedCheck(mouseCursor)
     local taskbar = require("src/taskbar")
     for i = #window.items, 1, -1 do -- from topmost to bottom
         local item = window.items[i]
@@ -148,24 +148,39 @@ function window.clickedCheck(mousecCursor)
 
         -- Check if the mouse is inside header area (click to drag)
         if item.hover.header then
-            if mousecCursor.x >= headerX and mousecCursor.x <= headerX + headerW and mousecCursor.y >= headerY and mousecCursor.y <= headerY + headerH then
+            if mouseCursor.x >= headerX and mouseCursor.x <= headerX + headerW and mouseCursor.y >= headerY and mouseCursor.y <= headerY + headerH then
                 window.drag.target = item
-                window.drag.offset.x = mousecCursor.x - item.x
-                window.drag.offset.y = mousecCursor.y - item.y
+                window.drag.offset.x = mouseCursor.x - item.x
+                window.drag.offset.y = mouseCursor.y - item.y
             end
         end
 
         -- Check if mouse is inside window area (click to focus)
-        if mousecCursor.x >= winX and mousecCursor.x <= winX + winW and mousecCursor.y >= winY and mousecCursor.y <= winY + winH then
+        if mouseCursor.x >= winX and mouseCursor.x <= winX + winW and mouseCursor.y >= winY and mouseCursor.y <= winY + winH then
             -- Reorder window to last (top-most)
             table.remove(window.items, i)
             table.insert(window.items, item)
             taskbar.focusItem(item.id, true)
             window.clicked = true
+
+            -- First click check from appsManager (store it in here)
+            local item2 = window.items[#window.items]
+            appsManager.firstClickedCheck(item2.id, mouseCursor, {item2.x, item2.y}, {window.header.height, item2.size.outline})
+
             return
         else
             taskbar.focusItem(item.id, false)
             window.clicked = false
+        end
+    end
+end
+
+function window.doubleClickedCheck(mouseCursor)
+    local item = window.items[#window.items]
+    if item then
+        local winX, winY, winW, winH = item.x, item.y, item.size.x, item.size.y
+        if utils.rectButton(mouseCursor, winX, winY, winW, winH) then
+            appsManager.doubleFirstClickedChecck(item.id, mouseCursor, {item.x, item.y}, {window.header.height, item.size.outline})
         end
     end
 end

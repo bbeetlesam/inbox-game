@@ -37,6 +37,7 @@ local utils = {
         end,
 
         -- Applied only when taking screenshots of this game (used in itch.io page)
+        -- put this code utils.core.screenshotMode({const.game.screen.WIDTH, const.game.screen.HEIGHT}) below everything in love.draw (after cursor.draw())
         screenshotMode = function(screenSize, outlineThickness, outlineColor)
             outlineThickness = outlineThickness or 3
             love.graphics.setBackgroundColor(love.math.colorFromBytes(192, 192, 192)) -- const.color.SILVER_TASKBAR
@@ -62,6 +63,7 @@ local utils = {
         local textWidth = font:getWidth(text)
         local textHeight = font:getHeight()
         local prevColor = {love.graphics.getColor()}
+        borderOffset = borderOffset or {0, 0}
 
         if useBorder then
             love.graphics.setColor(borderColor or {1, 1, 1})
@@ -71,6 +73,25 @@ local utils = {
 
         love.graphics.setColor(prevColor)
         love.graphics.print(text, centerX - textWidth / 2, centerY - textHeight / 2)
+    end,
+
+    printBorderText = function(text, x, y, borderColor, borderOffset, outlineMode)
+        local font = love.graphics.getFont()
+        local textWidth = font:getWidth(text)
+        local textHeight = font:getHeight()
+        local prevColor = {love.graphics.getColor()}
+        local mode = outlineMode and "line" or "fill"
+        borderOffset = borderOffset or {0, 0}
+
+        love.graphics.setColor(borderColor or {1, 1, 1, 0})
+        love.graphics.rectangle(mode, x - borderOffset[1], y - borderOffset[2],
+        textWidth + borderOffset[1] * 2, textHeight + borderOffset[2] * 2)
+
+        love.graphics.setColor(prevColor)
+        love.graphics.print(text, x, y)
+
+        -- return border attributes (might be needed later, if anything)
+        return x - borderOffset[1], y - borderOffset[2], textWidth + borderOffset[1] * 2, textHeight + borderOffset[2] * 2
     end,
 
     drawImage = function(image, x, y, size)
@@ -165,7 +186,33 @@ local utils = {
             end
             return value, elapsed
         end
-    end
+    end,
+
+    dashedLine = function(x1, y1, x2, y2, dashLength, gapLength, lineWidth, color)
+        dashLength = dashLength or 3
+        gapLength = gapLength or 1
+        lineWidth = lineWidth or 1
+        color = color or {0, 0, 0}
+
+        local dx, dy = x2 - x1, y2 - y1
+        local length = math.sqrt(dx * dx + dy * dy)
+        local angle = math.atan2(dy, dx)
+        local progress = 0
+
+        while progress < length do
+            local segStart = progress
+            local segEnd = math.min(progress + dashLength, length)
+            local sx = x1 + math.cos(angle) * segStart
+            local sy = y1 + math.sin(angle) * segStart
+            local ex = x1 + math.cos(angle) * segEnd
+            local ey = y1 + math.sin(angle) * segEnd
+            love.graphics.setColor(color)
+            love.graphics.setLineWidth(lineWidth)
+            love.graphics.line(sx, sy, ex, ey)
+            progress = progress + dashLength + gapLength
+        end
+        love.graphics.setColor(1, 1, 1)
+    end,
 }
 
 utils.copyTable = function(orig)
