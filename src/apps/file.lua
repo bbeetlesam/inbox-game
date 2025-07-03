@@ -10,6 +10,7 @@ local file = {
         header = love.graphics.newFont(const.font.WIN95, 20),
         body = love.graphics.newFont(const.font.WIN95, 20),
         txt = love.graphics.newFont(const.font.WIN95, 18),
+        greet = love.graphics.newFont(const.font.WIN95, 24),
     },
     imageSize = 16 * 1.3,
     image = {
@@ -246,23 +247,32 @@ file.draw = function()
                     childY = childY + file.imageSize + 2
                 end
             else
-                love.graphics.print("[empty folder]", xr, childY)
+                love.graphics.print("This folder is empty.", xr, childY, nil, nil, nil, nil, nil, -0.15, nil)
             end
         end
     else
-
+        utils.drawImage(file.image.folder, xr + 3, yr, 45)
+        love.graphics.setColor(const.color.BLACK)
+        love.graphics.setFont(file.font.greet)
+        love.graphics.print("Welcome to My Files!", xr + 3, yr + 45)
+        love.graphics.print("Welcome to My Files!", xr + 4, yr + 45)
+        love.graphics.setFont(file.font.txt)
+        love.graphics.print("Select a folder or file from the left panel to begin.", xr + 3, yr + 70)
     end
 
     -- upper panel
     local xu, yu = x + 70, y + 35 + 8
     local selectedPath = "root\\" .. (selectedContent and findSelectedPath(folders) or "")
 
+    love.graphics.setColor(const.color.BLACK)
+    love.graphics.setFont(file.font.body)
     love.graphics.print(selectedPath, xu + 8, yu + 8)
 
     -- lower left panel
     local xll, yll = x, y + 35 + 5 + 38 + 2 + file.content.height - 85 - 35
     local childrenAmount = (selectedContent and countAllChildren(selectedContent) or "0") .. " object(s)"
 
+    love.graphics.setColor(const.color.BLACK)
     love.graphics.print(childrenAmount, xll + 8, yll + 8)
 end
 
