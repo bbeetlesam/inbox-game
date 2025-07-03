@@ -14,6 +14,8 @@ end
 appsManager.resetAppsState = function(appId)
     if appId == "settings" then
         settings.resetStates()
+    elseif appId == "file" then
+        file.resetStates()
     end
 end
 

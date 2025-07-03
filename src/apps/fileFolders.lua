@@ -10,7 +10,7 @@ return {
             {
                 name = "Documents",
                 type = "folder",
-                expanded = true,
+                expanded = false,
                 selected = false,
                 children = {
                     { name = "about.txt", type = "file-text", size = 21, isOpen = false,

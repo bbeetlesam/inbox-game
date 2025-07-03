@@ -320,4 +320,29 @@ file.doubleFirstClickedCheck = function(mouseCursor, offsets)
     end
 end
 
+file.resetStates = function()
+    local function storeAndRestore(entry)
+        -- Store the initial expanded value if not already stored
+        if entry._originalExpanded == nil then
+            entry._originalExpanded = entry.expanded
+        end
+        -- Restore to the stored value
+        entry.expanded = entry._originalExpanded
+        -- Recurse for children
+        if entry.children then
+            for _, child in ipairs(entry.children) do
+                storeAndRestore(child)
+            end
+        end
+    end
+
+    -- reset all expanded attributes on fileFolders to initial value
+    for _, entry in ipairs(folders) do
+        storeAndRestore(entry)
+    end
+
+    -- remove any selected entry to none
+    clearAllSelected(folders)
+end
+
 return file
