@@ -14,6 +14,7 @@ local sceneManager = require("src/scenes/sceneManager")
 function love.load()
     love.window.setFullscreen(true)
     love.mouse.setVisible(false)
+    love.graphics.setDefaultFilter("nearest", "nearest")
     Game = {utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)}
 
     shaders.init()
@@ -132,6 +133,7 @@ end
 
 function love.resize()
     shaders.CanvasPool.clear()
+    shaders.CanvasPool.setAllFilters("nearest", "nearest")
     Game = {utils.core.setGameScreen(const.game.screen.WIDTH, const.game.screen.HEIGHT)}
 end
 

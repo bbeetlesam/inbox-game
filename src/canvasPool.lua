@@ -15,6 +15,7 @@ function CanvasPool.get(w, h)
         canvas = love.graphics.newCanvas(w, h),
         inUse = true
     }
+    newCanvas.canvas:setFilter("nearest", "nearest")
     table.insert(CanvasPool, newCanvas)
     return newCanvas.canvas
 end
@@ -32,6 +33,16 @@ function CanvasPool.clear()
     end
     for i = #CanvasPool, 1, -1 do
         table.remove(CanvasPool, i)
+    end
+end
+
+function CanvasPool.setAllFilters(min, mag)
+    min = min or "nearest"
+    mag = mag or "nearest"
+    for _, canvas in ipairs(CanvasPool) do
+        if canvas.canvas then
+            canvas.canvas:setFilter(min, mag)
+        end
     end
 end
 
