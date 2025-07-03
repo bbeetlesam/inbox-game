@@ -3,19 +3,21 @@ local utils = require("src/utils")
 local folders = require("src/apps/fileFolders")
 
 local file = {
-    content = { 
+    content = {
         width = 0, height = 0,
     },
     font = {
         header = love.graphics.newFont(const.font.WIN95, 20),
         body = love.graphics.newFont(const.font.WIN95, 20),
+        txt = love.graphics.newFont(const.font.WIN95, 18),
     },
     imageSize = 16 * 1.3,
     image = {
         computer = love.graphics.newImage("assets/img/computer_explorer-0.png"),
         desktop = love.graphics.newImage("assets/img/desktop-3.png"),
         folder = love.graphics.newImage("assets/img/directory_closed-2.png"),
-        txt = love.graphics.newImage("assets/img/notepad_file-2.png"),
+        txt = love.graphics.newImage("assets/img/file_lines-0.png"),
+        docViewer = love.graphics.newImage("assets/img/notepad-4.png")
     },
     expandFolderButtons = {},
     nameFolderButtons = {},
@@ -101,6 +103,19 @@ local function countAllChildren(entry)
         return count
     else
         return 1
+    end
+end
+
+-- count accumulated size (non-folder file) of an entry (including its children and descendants)
+local function accumulatedSize(entry)
+    if entry.type == "folder" and entry.children then
+        local total = 0
+        for _, child in ipairs(entry.children) do
+            total = total + accumulatedSize(child)
+        end
+        return total
+    else
+        return entry.size or 0
     end
 end
 
@@ -195,11 +210,47 @@ file.draw = function()
     local selectedContent = findSelectedEntry(folders)
 
     if selectedContent then
+        -- if selected is a file-text
         if selectedContent.type == "file-text" then
-            love.graphics.printf(selectedContent.content, xr, yr, wr, "left")
+            utils.bevelRect(xr - 5, yr - 5, wr + 9, 21 + 7, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.SILVER_BEVEL)
+
+            utils.drawImage(file.image.docViewer, xr - 1, yr - 2, file.imageSize)
+            love.graphics.setColor(const.color.BLACK)
+            love.graphics.print("Document Viewer", xr + 25, yr)
+
+            love.graphics.setColor(const.color.BLACK)
+            love.graphics.setFont(file.font.txt)
+            love.graphics.printf(selectedContent.content, xr - 1, yr + 26, wr, "left")
+            love.graphics.setFont(file.font.body)
+
+        -- if selected is a folder
         elseif selectedContent.type == "folder" then
-            love.graphics.printf("this is just fucking ass " .. selectedContent.name .. " folder,\nnormal as ever", xr, yr, wr, "left")
+            utils.bevelRect(xr - 5, yr - 5, wr + 9, 21 + 7, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.SILVER_BEVEL)
+            utils.bevelRect(xr - 5 + 300, yr - 5, wr + 9 - 300, 21 + 7, 2, const.color.SILVER_TASKBAR, const.color.SILVER_BEVEL, const.color.SILVER_BEVEL)
+
+            love.graphics.setColor(const.color.BLACK)
+            love.graphics.print("Name", xr, yr)
+            love.graphics.printf("Size", xr - 5 + 300, yr, wr + 9 - 300 - 5, "right")
+
+            local childY = yr + 26
+            if selectedContent.children and #selectedContent.children > 0 then
+                for _, child in ipairs(selectedContent.children) do
+                    local icon = (child.type == "folder" and file.image.folder)
+                            or (child.type == "file-text" and file.image.txt)
+                            or (child.type == "computer" and file.image.computer)
+                            or file.image.txt
+                    utils.drawImage(icon, xr, childY, file.imageSize)
+                    love.graphics.setColor(const.color.BLACK)
+                    love.graphics.print(child.name, xr + file.imageSize + 4, childY + 2)
+                    love.graphics.printf(accumulatedSize(child) .. "KB", xr, childY + 2, wr, "right")
+                    childY = childY + file.imageSize + 2
+                end
+            else
+                love.graphics.print("[empty folder]", xr, childY)
+            end
         end
+    else
+
     end
 
     -- upper panel
