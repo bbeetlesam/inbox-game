@@ -37,6 +37,7 @@ local utils = {
         end,
 
         -- Applied only when taking screenshots of this game (used in itch.io page)
+        -- put this code utils.core.screenshotMode({const.game.screen.WIDTH, const.game.screen.HEIGHT}) below everything in love.draw (after cursor.draw())
         screenshotMode = function(screenSize, outlineThickness, outlineColor)
             outlineThickness = outlineThickness or 3
             love.graphics.setBackgroundColor(love.math.colorFromBytes(192, 192, 192)) -- const.color.SILVER_TASKBAR
