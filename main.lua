@@ -88,6 +88,11 @@ function love.mousepressed(_, _, button, _, presses)
             windows.addItem({apps.selectedApp.id, apps.selectedApp.icon})
             taskbar.focusItem(apps.selectedApp.id, true)
         end
+
+        if presses == 2 then
+            -- If clicking twice on an window (in general)
+            windows.doubleClickedCheck(cursor)
+        end
     end
 end
 
